@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ "$FLASK_ENV" == "development" ]; then
+        python2 hello.py
+else
+        gunicorn hello:app
+fi

@@ -1,3 +1,5 @@
+pure/
+.env
 venv/
 
 # Created by http://www.gitignore.io
