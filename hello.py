@@ -86,7 +86,8 @@ def reset():
 
 @app.route('/')
 def welcome():
-    return f.render_template('fake.html')
+    print(os.environ)
+    return str(os.environ)
     # if 'id_' not in session:
     #     add_new_user()
     # question_name = QUESTIONS_NAME[session['qid']]
