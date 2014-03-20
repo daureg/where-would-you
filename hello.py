@@ -45,16 +45,13 @@ def echo():
 def ask_or_record(question, city):
     # TODO redirect to next question
     assert question in QUESTIONS_NAME
-    app.logger.info(request.method)
     if request.method == 'GET':
         return ask_user(question, city)
-    app.logger.info('POST')
     return record_answer(question, city)
 
 
 def record_answer(question, city):
     #TODO save in DB, mark question done in session
-    app.logger.info(request.form['send'])
     ans = f.json.loads(request.form['send'])
     # nq = f.json.loads(request.form['nq'])
     # nc = f.json.loads(request.form['nc'])
@@ -62,9 +59,6 @@ def record_answer(question, city):
     ans = ans['a']
     if nq != question:
         session['qid'] = session['qid'] + 1
-    app.logger.info('update {}'.format(session['qid']))
-    app.logger.info(nq)
-    app.logger.info(nc)
     return "ok"
 
 
@@ -77,7 +71,6 @@ def ask_user(question, city):
     if question == 'end':
         return f.render_template('end.html',
                                  city=cities.FULLNAMES[session['city']])
-    app.logger.info('next question is {}'.format(session['qid']+1))
     next_question_name = QUESTIONS_NAME[session['qid']+1]
     return f.render_template('draw.html', bbox=cities.BBOXES[city],
                              cities=cities.BCITIES, current=question,
@@ -93,15 +86,15 @@ def reset():
 
 @app.route('/')
 def welcome():
-    app.logger.info(os.environ)
-    if 'id_' not in session:
-        add_new_user()
-    question_name = QUESTIONS_NAME[session['qid']]
-    if not session['city']:
-        return f.render_template('index.html', cities=cities.BCITIES,
-                                 question=question_name)
-    return redirect(url_for('ask_user', question=question_name,
-                            city=session['city']))
+    return "Hello World"
+    # if 'id_' not in session:
+    #     add_new_user()
+    # question_name = QUESTIONS_NAME[session['qid']]
+    # if not session['city']:
+    #     return f.render_template('index.html', cities=cities.BCITIES,
+    #                              question=question_name)
+    # return redirect(url_for('ask_user', question=question_name,
+    #                         city=session['city']))
 
 
 def add_new_user():
