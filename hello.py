@@ -115,7 +115,7 @@ def add_new_user():
 
 @app.route('/venues', methods=['POST'])
 def display_venues():
-    venues = get_db()['foursquare']['venue']
+    venues = get_db().get_default_database()['venue']
     geo = f.json.loads(request.form['geo'])
     radius = float(request.form['radius'])
     # cat = q.QUESTIONS[question].cat
