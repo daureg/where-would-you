@@ -88,15 +88,14 @@ def reset():
 
 @app.route('/')
 def welcome():
-    return f.render_template('fake.html')
-    # if 'id_' not in session:
-    #     add_new_user()
-    # question_name = QUESTIONS_NAME[session['qid']]
-    # if not session['city']:
-    #     return f.render_template('index.html', cities=cities.BCITIES,
-    #                              question=question_name)
-    # return redirect(url_for('ask_user', question=question_name,
-    #                         city=session['city']))
+    if 'id_' not in session:
+        add_new_user()
+    question_name = QUESTIONS_NAME[session['qid']]
+    if not session['city']:
+        return f.render_template('index.html', cities=cities.BCITIES,
+                                 question=question_name)
+    return redirect(url_for('ask_user', question=question_name,
+                            city=session['city']))
 
 
 def add_new_user():
