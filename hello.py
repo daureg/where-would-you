@@ -11,13 +11,14 @@ QUESTIONS_NAME = q.QUESTIONS.keys() + ['end']
 
 app = Flask(__name__)
 app.config.update(dict(
-    DEBUG=os.environ.get('DEBUG', False),
+    DEBUG=os.environ.get('DEBUG', True),
     MONGO_URL=os.environ.get('MONGOHQ_URL', None)
 ))
 
 
 def connect_db():
     """Return a client to the default mongo database."""
+    print('try to connect to '+app.config['MONGO_URL'])
     return pymongo.MongoClient(app.config['MONGO_URL'])
 
 
@@ -34,6 +35,7 @@ def get_db():
 def close_db(error):
     """Closes the database again at the end of the request."""
     if hasattr(g, 'mongo_db'):
+        print('close db')
         g.mongo_db.close()
 
 
@@ -86,8 +88,7 @@ def reset():
 
 @app.route('/')
 def welcome():
-    print(os.environ)
-    return str(os.environ)
+    return f.render_template('fake.html')
     # if 'id_' not in session:
     #     add_new_user()
     # question_name = QUESTIONS_NAME[session['qid']]
