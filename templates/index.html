@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block body %}
+<script type=text/javascript>
+var MINI = require('minified'); 
+var $ = MINI.$, $$ = MINI.$$, EE = MINI.EE;
+$(function() {
+		var pick = $('#pick');
+		var next = $('#start');
+        pick.on('change', function(e) {
+            var city = e.target.options[e.target.selectedIndex].value;
+            next.set('-pure-button-disabled +pure-button-primary');
+            next.set({'@href': '{{ question|safe }}'+'/'+city})
+            e.preventDefault();
+            });
+		});
+</script>
+	</head>
+	<body>
+	<div class="pure-g">
+		<div class="pure-u-3-5" id="help">
+			<h1>Welcome</h1>
+			<p>Indicate on the map at most 3 areas where you would perform the
+			activity described. After that, you can answer the question in
+			another city or move on to the next question.</p>
+			<p>First, pick the city most familiar to you
+			<select id="pick" autofocus>
+				<option value="fake" selected="selected">&nbsp;</option>
+				{% for city in cities %}
+				<option value="{{ city.short }}">{{ city.long }}</option>
+				{% endfor %}
+			</select> and
+			<a id="start" class="pure-button pure-button-disabled"
+				href="/">let's go</a></p>
+		</div>
+	</div>
+{% endblock %}

@@ -1,6 +1,9 @@
 pure/
 .env
 venv/
+db/
+Leaflet.draw/
+dump/
 
 # Created by http://www.gitignore.io
 

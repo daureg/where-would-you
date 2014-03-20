@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>jQuery Example</title>
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='pure.css') }}">
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='leaflet.css') }}">
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='mine.css') }}">
+		<script type=text/javascript src="{{ url_for('static', filename='minified-legacyie-src.js') }}"></script>
+		<script type=text/javascript>
+		  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+		  // var $CAT = {{ session.cat|tojson|safe }};
+		  // var $NEXT = {{ session.next|tojson|safe }};
+		</script>
+{% block body %}{% endblock %}
+	</body>
+</html>
