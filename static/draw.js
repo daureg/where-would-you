@@ -35,9 +35,9 @@ function compute_bound(bbox) {
 }
 
 function create_map(div_id, center, main_layer, bbox) {
-    var map = new L.Map(div_id, {zoom: 13, minZoom: 11, center: center,
-                                 layers: [main_layer], maxBounds: bbounds});
-        // .fitBounds(bbounds);
+    var map = new L.Map(div_id, {zoom: 14, minZoom: 10, center: center,
+                                 layers: [main_layer], maxBounds: bbounds})
+        .fitBounds(bbounds);
     L.polygon(bbox, {fill: false, weight: 3}).addTo(map);
     return map;
 }
@@ -45,9 +45,10 @@ var bbox = $BBOX;
 var bbounds = compute_bound(bbox);
 var OpenStreetMap_Mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         {attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'});
+var carto_layer = OpenStreetMap_Mapnik;
 var center = new L.LatLng(0.5*(bbox[0][0]+bbox[2][0]),
                           0.5*(bbox[0][1]+bbox[2][1]));
-map = create_map('map', center, OpenStreetMap_Mapnik, bbox);
+var map = create_map('map', center, carto_layer, bbox);
 
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
@@ -126,6 +127,10 @@ map.on('draw:created', function (e) {
                 return false;
             });
         }
+        else {
+            $('#done-ctn').show();
+            if (ANSWER.length === 3)  { done_answering(); }
+        }
     })
     .error(function(status, statusText, responseText) {
         console.log(status, statusText, responseText);
@@ -139,6 +144,7 @@ function done_answering() {
     $('#time').show();
     $('#done-ctn').hide();
     $('#skip').hide();
+    carto_layer.setOpacity(0.5);
 }
 function collect_time_answer() {
     var fields = $('#time input');
@@ -177,10 +183,7 @@ $('#done').on('click', function(e) {
     e.preventDefault();
 });
 $('#hour').on('change', function(e) {
-    // show_hour.fill($(e.srcElement).get('value'));
-    console.log(e.srcElement.value);
-    show_hour.innerHTML = '&nbsp;'+e.srcElement.value;
-    console.log(show_hour.innerHTML);
+    show_hour.innerHTML = '&nbsp;'+getTarget(e).value;
 });
 /* Disable all interactions but the current popup */
 function focus_on_popup() {
@@ -194,11 +197,15 @@ function close_popup(p) {
     map.closePopup(p);
 	map.addControl(drawControl);
 	map.dragging.enable();
-	$('#done-ctn').show();
-    /* there no point skipping as user has already started to answer
-	$('#skip').show();
-    */
-    if (ANSWER.length === 3)  {
-        done_answering();
-    }
+    $('#done-ctn').show();
+    if (ANSWER.length === 3)  { done_answering(); }
+}
+function getTarget(obj) {
+    var targ;
+    var e=obj;
+    if (e.target) targ = e.target;
+    else if (e.srcElement) targ = e.srcElement;
+    if (targ.nodeType == 3) // defeat Safari bug
+        targ = targ.parentNode;
+    return targ;
 }
