@@ -6,6 +6,7 @@ import pymongo
 from collections import defaultdict, Counter
 from datetime import datetime as dt
 from flask.ext.compress import Compress
+import FSCategories as fsc
 import flask as f
 import utils as u
 import cities as c
@@ -27,6 +28,7 @@ assets = Environment(app)
 
 js = Bundle('app.js', output='gen/packed.js')
 css = Bundle('app.css', output='gen/packed.css')
+assets.register('js_all', js)
 assets.register('css_all', css)
 
 
@@ -256,7 +258,7 @@ def display_venues():
     venues = get_db().get_default_database()['venue']
     geo = f.json.loads(f.request.form['geo'])
     radius = float(f.request.form['radius'])
-    # cat = q.QUESTIONS[question].cat
+    cat = fsc.get_subcategories(actual_question(f.session).cat)
     if radius > 0:
         geo = fake_geo(int(radius)) if app.config['MOCKING'] else geo
         space = {'$near': {'$geometry': geo, 'maxDistance': radius}}
@@ -264,7 +266,8 @@ def display_venues():
     else:
         space = {'$geoWithin': geo}
         is_within = lambda p: True
-    res = venues.find({'loc': space}, {'name': 1, 'loc': 1}, limit=5)
+    res = venues.find({'loc': space, 'cat': {'$in': cat}},
+                      {'name': 1, 'loc': 1}, limit=5)
     url = 'https://foursquare.com/v/'
     ven = [{'name': v['name'], 'url': url+v['_id']}
            for v in res if is_within(v['loc'])]
