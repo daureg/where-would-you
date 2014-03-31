@@ -1,3 +1,4 @@
+node_modules/
 pure/
 .env
 venv/

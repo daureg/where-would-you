@@ -1,13 +1,25 @@
 {% extends "layout.html" %}
+{# <script src="{{ url_for('static', filename='isotope.pkgd.min.js') }}"></script> #}
 {% block body %}
+<title>Thank you for completing  the “Where would you” survey</title>
 	</head>
 	<body>
-	<div class="pure-g">
-		<div class="pure-u-3-5" id="help">
-			<h1>Thank you</h1>
-            <p>Thank to your time, {{ city|safe}} will soon have no more
-            secrets left.</p>
-		</div>
+	<div id="end">
+		{% if done %}
+		<h1>Great Job!</h1>
+		{# <div class="js-isotope" data-isotope-options='{ "itemSelector": ".city", "masonry": { "columnWidth": 200 } }'> #}
+		{% for c in cities %}
+		<img class="city" src="{{ url_for('static', filename='city/'+c.short+'.jpg') }}">
+		{% endfor %}
+		{# </div> #}
+		<p>Thank to your time, {{ names|safe}} will soon have no more
+		secrets left.</p>
+		{% else %}
+		<h1>That was fast</h1>
+		<p>It looks like you skipped a lot of questions.</p><p> If you found
+		them boring, we are sorry for the inconvenience.</p><p> Otherwise, if
+		you still want to contribute to science, you can
+		<a href="reset">start again.</a></p>
+		{% endif %}
 	</div>
 {% endblock %}
-

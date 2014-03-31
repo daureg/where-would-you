@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+<title>All the cities</title>
+</head>
+<body>
+<div id="slideshow">
+	{% for city in cities %}
+	<img class="city" src="{{  url_for('static', filename='city/'+city.short+'.jpg') }}">
+	{% endfor %}
+</div>
+{% endblock %}
+

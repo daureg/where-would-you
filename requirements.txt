@@ -1,11 +1,12 @@
 Flask==0.10.1
-Flask-Assets==0.9
+Flask-Compress==1.0.0
 Jinja2==2.7.2
 MarkupSafe==0.19
 Werkzeug==0.9.4
+enum34==0.9.23
 geographiclib==1.34
 gunicorn==18.0
 itsdangerous==0.23
+jsonschema==2.3.0
 pymongo==2.6.3
-webassets==0.9
 wsgiref==0.1.2

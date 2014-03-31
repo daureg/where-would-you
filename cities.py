@@ -16,8 +16,8 @@ def bbox_to_polygon(bbox):
     right coordinates of bbox [lat_bl, long_bl, lat_ur, long_ur]"""
     assert(len(bbox) == 4)
     lat_bl, long_bl, lat_ur, long_ur = bbox
-    return {'b': [[lat_bl, long_bl], [lat_bl, long_ur],
-                  [lat_ur, long_ur], [lat_ur, long_bl]]}
+    return [[lat_bl, long_bl], [lat_bl, long_ur],
+            [lat_ur, long_ur], [lat_ur, long_bl]]
 
 
 NYC = [40.583, -74.040, 40.883, -73.767]

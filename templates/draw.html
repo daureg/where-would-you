@@ -1,13 +1,11 @@
 {% extends "layout.html" %}
 {% block body %}
-	<link rel="stylesheet" href="{{ url_for('static', filename='leaflet.draw.css') }}" />
-	<script src="{{ url_for('static', filename='leaflet-src.js') }}"></script>
-	<script src="{{ url_for('static', filename='leaflet.draw.js') }}"></script>
+	<title>Where would you {{ label|safe }} in {{ city|safe }}?</title>
 	<script type="text/javascript">
-		var $BBOX={{ bbox|tojson|safe }};
-		var ANSWER = [];
+        var $BBOX={{ bbox|safe }};
+        var ANSWER = [];
         var MINI = require('minified'); 
-        var $ = MINI.$, $$ = MINI.$$, EE = MINI.EE;
+        var $ = MINI.$;
         $(function() {
                 var pick = $('#pick');
                 var next = $('#next');
@@ -17,51 +15,50 @@
                     var city = e.target.options[e.target.selectedIndex].value;
                     var current = "{{ current|safe }}";
                     submit_answer(current, city);
-                    {# window.location = window.location.origin + '/' + current + '/' + city; #}
                     });
                 next.on('click', function(e) {
                     e.preventDefault();
                     var city = "{{ city |safe}}";
                     var after = "{{ next|safe }}";
                     submit_answer(after, city);
-                    {# window.location = window.location.origin + '/' + after + '/' + city; #}
                     });
                 });
-                console.log('loaded');
 	</script>
 </head>
 <body>
 
 	<div id="map">
 		<div id="question">
-			<span id="progress">{{ id_+1 }}/2 | </span>
+			<span id="progress">{{ id_+1 }}/{{ total }} | </span>
 			<span id="label">{{ 'Where would you '+label+'?' }}</span>
-			<span id="skip"><a href="/{{ next|safe + '/' + city|safe }}">{{ 'Skip, '+skip }}</a></span>
+			<span id="skip"><a href="/skip/{{ city|safe }}">{{ 'Skip, '+skip }}</a></span>
 		</div>
 		<div id="time">
+			<form>
             <p>Would you do it more likely on <label>week days <input type="radio"
-            name="weekday"></label>, <label>weed-end <input type="radio"
-            name="weekend"></label> or <label>both <input type="radio"
-            name="both"></label>.</p>
+            name="day" value="weekday"></label>, <label>week-end <input type="radio"
+            name="day" value="weekend"></label> or <label>both <input type="radio"
+            name="day" value="both"></label>.</p>
 		<p>Around which time: <input min="0" max="23" step="1"
-		value="12" type="range" id="hour" name="hour"><span id="hour-value">12</span></p>
+		value="12" type="range" id="hour" name="hour"><span
+            id="hour-value">&nbsp;12</span></p>
 		<p>Answer the same question in another city
-        <select id="pick">
+        <select id="pick" autofocus>
             <option value="fake" selected="selected">&nbsp;</option>
             {% for c in cities %}
-                {% if c.short != city %}
-                    <option value="{{ c.short }}">{{ c.long }}</option>
-                {% endif %}
+                <option value="{{ c.short }}">{{ c.long }}</option>
             {% endfor %}
         </select>
-        or <button id="next">Go to the next question</button></p>
+        or <button type="button" id="next" class="pure-button button-action">
+            Go to the next question</button></p>
+			</form>
 	</div>
 	<div id="done-ctn">
-		<button id="done">Done</button>
+		<button type="button" id="done" class="pure-button button-action">Done</button>
 	</div>
 	</div>
 
-	<script src="{{ url_for('static', filename='draw.js') }}"></script>
+	<script src="{{ url_for('static', filename='rdraw.js') }}"></script>
 </body>
 </html>
 {% endblock %}
