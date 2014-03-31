@@ -11,17 +11,23 @@ import utils as u
 import cities as c
 import questions as q
 import schemas as s
-import jsonschema as js
+import jsonschema as jsa
 QUESTIONS_NAME = q.QUESTIONS.keys() + ['end']
 VENUE_ID = re.compile(r'[0-9a-f]{24}')
+from flask.ext.assets import Environment, Bundle
 
 app = f.Flask(__name__)
 app.config.update(dict(
-    DEBUG=False,  # os.environ.get('DEBUG', True),
+    DEBUG=os.environ.get('DEBUG', True),
     MOCKING=os.environ.get('MOCKING', False),
     MONGO_URL=os.environ.get('MONGOHQ_URL', None)
 ))
 Compress(app)
+assets = Environment(app)
+
+js = Bundle('app.js', output='gen/packed.js')
+css = Bundle('app.css', output='gen/packed.css')
+assets.register('css_all', css)
 
 
 def connect_db():
@@ -151,8 +157,8 @@ def validate_space(ans):
     geo = ans['geo']
     scheme = s.point if radius > 1 else s.polygon
     try:
-        js.validate(geo, scheme)
-    except (js.SchemaError, js.ValidationError) as invalid:
+        jsa.validate(geo, scheme)
+    except (jsa.SchemaError, jsa.ValidationError) as invalid:
         app.logger.info('{}'.format(geo, invalid))
         return False
     venues = ans['venues']
