@@ -2,6 +2,7 @@ TODO
 static/.webassets-cache/
 static/buttons.css
 static/gen/
+static/city/orig
 static/leaflet.js
 static/mine.css
 static/minified-custom.js
