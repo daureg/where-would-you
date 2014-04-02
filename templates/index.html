@@ -19,18 +19,40 @@ $(function() {
 	<body>
 	<div id="help">
         <h1>Where would <strong>you</strong>…</h1>
-			<p>Indicate on the map at most 3 areas where you would perform the
-			activity described. After that, you can answer the question in
-			another city or move on to the next question.</p>
+
+            <p>Thank you for helping us understand how people live differently
+            in various cities.</p><p>You will be presented with a map and a
+            serie of activities. For each one, draw between 1 and 3 areas
+            where you would do it, using the tools on top left corner. You can
+            also skip it if it is not relevant to you.</p><p>After that, you
+            can answer the same question in another city or move on to the
+            next question.</p>
+
             <form id="choose">
-			<p>First, pick the city most familiar to you
+			<p>First, pick the city most familiar to you (if you have lived
+            elsewhere than Helsinki, we would love to hear from it)
 			<select id="pick" autofocus>
 				<option value="fake" selected="selected">&nbsp;</option>
 				{% for city in cities %}
+                {% if city.short == 'newyork' %}
+                 </optgroup><optgroup label="USA, East">
+                {% elif city.short == 'chicago' %}
+                </optgroup><optgroup label="USA, Middle">
+                {% elif city.short == 'sanfrancisco' %}
+                </optgroup><optgroup label="USA, West">
+                {% elif city.short == 'moscow' %}
+		<optgroup label="Europe, North">
+                {% elif city.short == 'london' %}
+                </optgroup><optgroup label="Europe, Middle">
+                {% elif city.short == 'amsterdam' %}
+                </optgroup><optgroup label="Europe, South">
+                {% endif %}
 				<option value="{{ city.short }}">{{ city.long }}</option>
+                {% if city.short == 'seattle' %}
+                </optgroup>
+                {% endif %}
 				{% endfor %}
-			</select> and
-			<a id="start" class="pure-button pure-button-disabled"
+            </select>. Then, <a id="start" class="pure-button pure-button-disabled"
 				href="/">let's go</a></p></form>
 	</div>
 {% endblock %}

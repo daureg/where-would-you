@@ -8,7 +8,6 @@ from datetime import datetime as dt
 from flask.ext.compress import Compress
 import FSCategories as fsc
 import flask as f
-import utils as u
 import cities as c
 import questions as q
 import schemas as s
@@ -56,6 +55,15 @@ def actual_question(session):
 
 def next_question_name(session):
     return QUESTIONS_NAME[session['qid']+1]
+
+
+def question_categories(session):
+    """Return a list of all categories id for the current question."""
+    cats = actual_question(session).cat
+    res = []
+    for cat in cats:
+        res.extend(fsc.get_subcategories(cat, fsc.Field.id))
+    return res
 
 
 @app.teardown_appcontext
@@ -122,7 +130,7 @@ def record_answer(question, city):
         except pymongo.errors.PyMongoError as oops:
             app.logger.warn(str(oops))
         f.session['answers'].setdefault(question, []).append(city)
-    return "ko"
+    return "ok"
 
 
 def validate_time(ans):
@@ -172,6 +180,16 @@ def validate_space(ans):
     return True
 
 
+@app.route('/email', methods=['POST'])
+def email():
+    """Register user email."""
+    email = f.request.form['email'].strip()
+    db = get_db().get_default_database()['answers']
+    db.insert({'uid': str(f.session['id_']), 'when': dt.utcnow(),
+               'email': email})
+    return f.jsonify(email=email)
+
+
 def ask_user(question, city):
     """If arguments are valid, show a map where user can answer, otherwise,
     redirect appropriately."""
@@ -191,7 +209,7 @@ def ask_user(question, city):
     return f.render_template('draw.html', bbox=c.BBOXES[city],
                              total=len(QUESTIONS_NAME)-1, cities=other_cities,
                              current=question, city=f.session['city'],
-                             next=next_question,
+                             next=next_question, id_=f.session['qid'],
                              **q.QUESTIONS[question]._asdict())
 
 
@@ -215,14 +233,17 @@ def thank_you():
     if len(first) > 0:
         names = first + ' and' + last
     return f.render_template('end.html', done=done, names=names,
-                             cities=cities)
+                             cities=cities, you=f.session['id_'],
+                             home=c.FULLNAMES[f.session['city']])
 
 
 @app.route('/cities')
 def show_cities():
     imgs = [_ for _ in c.BCITIES
             if _.short in ['paris', 'helsinki', 'berlin', 'rome', 'newyork',
-                           'barcelona', 'sanfrancisco']]
+                           'barcelona', 'sanfrancisco', 'amsterdam',
+                           'stockholm', 'london', 'prague', 'losangeles',
+                           'washington', 'moscow']]
     return f.render_template('cities.html', cities=imgs)
 
 
@@ -258,19 +279,17 @@ def display_venues():
     venues = get_db().get_default_database()['venue']
     geo = f.json.loads(f.request.form['geo'])
     radius = float(f.request.form['radius'])
-    cat = fsc.get_subcategories(actual_question(f.session).cat)
+    cat = question_categories(f.session)
     if radius > 0:
         geo = fake_geo(int(radius)) if app.config['MOCKING'] else geo
-        space = {'$near': {'$geometry': geo, 'maxDistance': radius}}
-        is_within = lambda p: u.geodesic_distance(p, geo) <= radius
+        space = {'$near': {'$geometry': geo, '$maxDistance': radius}}
     else:
         space = {'$geoWithin': geo}
-        is_within = lambda p: True
     res = venues.find({'loc': space, 'cat': {'$in': cat}},
-                      {'name': 1, 'loc': 1}, limit=5)
+                      {'name': 1, 'loc': 1, 'likes': 1},
+                      sort=[('likes', pymongo.DESCENDING)], limit=7)
     url = 'https://foursquare.com/v/'
-    ven = [{'name': v['name'], 'url': url+v['_id']}
-           for v in res if is_within(v['loc'])]
+    ven = [{'name': v['name'], 'url': url+v['_id']} for v in res]
     return f.jsonify(r=ven)
 
 

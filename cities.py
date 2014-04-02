@@ -42,11 +42,11 @@ STO = [59.3003, 17.996, 59.3614, 18.162]
 BAR = [41.3253, 2.1004, 41.4669, 2.240]
 US = [NYC, WAS, ATL, CHI, IND, HOU, SLO, SAF, LAN, SEA]
 EU = [MOS, HEL, STO, LON, PAR, BER, PRA, AMS, ROM, BAR]
-NAMES = ['New York', 'Washington', 'Atlanta', 'Chicago', 'Indianapolis',
-         'Houston', 'St. Louis', 'San Francisco', 'Los Angeles', 'Seattle',
-         'Moscow', 'Helsinki', 'Stockholm', 'London', 'Paris', 'Berlin',
-         'Prague', 'Amsterdam', 'Rome', 'Barcelona']
-CITIES = US + EU
+NAMES = ['Moscow', 'Helsinki', 'Stockholm', 'London', 'Paris', 'Berlin',
+         'Prague', 'Amsterdam', 'Rome', 'Barcelona',
+         'New York', 'Washington', 'Atlanta', 'Chicago', 'Indianapolis',
+         'Houston', 'St. Louis', 'San Francisco', 'Los Angeles', 'Seattle']
+CITIES = EU + US
 BCITIES = [City(short_name(city), city) for city in NAMES]
 SHORT_KEY = [short_name(city) for city in NAMES]
 FULLNAMES = dict(zip(SHORT_KEY, NAMES))

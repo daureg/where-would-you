@@ -5,7 +5,8 @@ SOURCES_CSS = static/normalize.css \
 			  static/buttons.css \
 			  static/leaflet.css \
 			  static/leaflet.draw.css \
-			  static/mine.css
+			  static/mine.css \
+			  static/wait.css
 PROD = 1
 
 all: app.css app.js
@@ -22,17 +23,17 @@ endif
 
 app.js: $(SOURCES_JS)
 ifeq ($(PROD), 1)
-	sed -e '/console.log(/d' $(SOURCES_JS) > __tmp.js
-	node_modules/uglify-js/bin/uglifyjs __tmp.js -cm > $@
+	# sed -e '/console.log(/d' $(SOURCES_JS) > __tmp.js
+	# node_modules/uglify-js/bin/uglifyjs __tmp.js -cm > $@
 	sed -e '/console.log(/d' static/draw.js > __tmp.js
 	node_modules/uglify-js/bin/uglifyjs __tmp.js -cm > static/rdraw.js
-	sed -i  's/="draw.js"/="rdraw.js"/' templates/draw.html
+	sed -i  "s/='draw.js'/='rdraw.js'/" templates/draw.html
 	rm __tmp.js
 else
 	node_modules/uglify-js/bin/uglifyjs $(SOURCES_JS) -b > $@
-	sed -i  's/="rdraw.js"/="draw.js"/' templates/draw.html
+	sed -i  "s/='rdraw.js'/='draw.js'/" templates/draw.html
 endif
-	mv app.js static/app.js
+	# mv app.js static/app.js
 
 clean:
 	rm -f static/app.css static/app.js

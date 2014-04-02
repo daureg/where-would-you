@@ -1,5 +1,6 @@
-var MINI = require('minified'); 
+var MINI = require('minified');
 var $ = MINI.$;
+$('#question').show();
 
 /* return the LatLng in the middle of an array of LatLng */
 function barycenter(points) {
@@ -38,7 +39,10 @@ function create_map(div_id, center, main_layer, bbox) {
     var map = new L.Map(div_id, {zoom: 14, minZoom: 10, center: center,
                                  layers: [main_layer], maxBounds: bbounds})
         .fitBounds(bbounds);
+    console.log(bbounds);
     L.polygon(bbox, {fill: false, weight: 3}).addTo(map);
+    $('#loading').hide();
+    $('.spinner').hide();
     return map;
 }
 var bbox = $BBOX;
@@ -48,7 +52,9 @@ var OpenStreetMap_Mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x
 var carto_layer = OpenStreetMap_Mapnik;
 var center = new L.LatLng(0.5*(bbox[0][0]+bbox[2][0]),
                           0.5*(bbox[0][1]+bbox[2][1]));
-var map = create_map('map', center, carto_layer, bbox);
+var map = null;
+// setTimeout(function() {
+map = create_map('map', center, carto_layer, bbox);
 
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
@@ -138,6 +144,7 @@ map.on('draw:created', function (e) {
     drawnItems.addLayer(zone);
 });
 
+
 function done_answering() {
     map.removeControl(drawControl);
     map.dragging.disable();
@@ -148,9 +155,9 @@ function done_answering() {
 }
 function collect_time_answer() {
     var fields = $('#time input');
-    var timing = {};
+    var timing = {hour: null};
     for (var i = 0; i < fields.length; i++) {
-        if (fields[i].type == 'range') {
+        if (fields[i].type == 'range' && HOUR_WAS_CHANGED) {
             timing.hour = parseInt(fields[i].value);
         }
         else {
@@ -183,20 +190,21 @@ $('#done').on('click', function(e) {
     e.preventDefault();
 });
 $('#hour').on('change', function(e) {
+    HOUR_WAS_CHANGED = true;
     show_hour.innerHTML = '&nbsp;'+getTarget(e).value;
 });
 /* Disable all interactions but the current popup */
 function focus_on_popup() {
-	map.removeControl(drawControl);
-	map.dragging.disable();
-	$('#done-ctn').hide();
-	$('#skip').hide();
+    map.removeControl(drawControl);
+    map.dragging.disable();
+    $('#done-ctn').hide();
+    $('#skip').hide();
 }
 /* Enable back some interactions */
 function close_popup(p) {
     map.closePopup(p);
-	map.addControl(drawControl);
-	map.dragging.enable();
+    map.addControl(drawControl);
+    map.dragging.enable();
     $('#done-ctn').show();
     if (ANSWER.length === 3)  { done_answering(); }
 }
@@ -209,3 +217,4 @@ function getTarget(obj) {
         targ = targ.parentNode;
     return targ;
 }
+// }, 20000);

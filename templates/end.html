@@ -1,6 +1,29 @@
 {% extends "layout.html" %}
 {# <script src="{{ url_for('static', filename='isotope.pkgd.min.js') }}"></script> #}
 {% block body %}
+<script type=text/javascript>
+var MINI = require('minified');
+var $ = MINI.$;
+$(function() {
+        var send = $('#send');
+        var uid = $('#uid');
+        send.on('click', function(e) {
+            var email = document.getElementById('email').value;
+            console.log("read: "+email);
+            $.request('post', $SCRIPT_ROOT + '/email', {email: email})
+            .then(function(data) {
+                var res = $.parseJSON(data);
+                console.log("get: "+res.email);
+                uid.fill(res.email);
+                $('#identity').show();
+                document.getElementById('identity').style.display='inline';
+                $('#please').hide();
+                $('#form').hide();
+            });
+            e.preventDefault();
+            });
+        });
+</script>
 <title>Thank you for completing  the “Where would you” survey</title>
 	</head>
 	<body>
@@ -14,6 +37,19 @@
 		{# </div> #}
 		<p>Thank to your time, {{ names|safe}} will soon have no more
 		secrets left.</p>
+
+        <p>Your answers will be remembered through History as the one of the
+        mighty <em id="uid">{{ you|safe }}.</em> <span id="identity">(it does
+        sound better, doesn't it).</span></p><p>
+        <span id="please"> But if you want, you can also
+            leave <label for="email">your email address</label>. </span>When we
+        receive enough answers, we will be able to tell you how much 
+        typical habitant of {{ home|safe }} you are (or not).</p>
+
+        <p id="form"> <input type="email" id="email" name="email" autofocus
+        autocomplete="on">
+		<button type="button" id="send" class="pure-button button-action">Send</button>
+        </p>
 		{% else %}
 		<h1>That was fast</h1>
 		<p>It looks like you skipped a lot of questions.</p><p> If you found
