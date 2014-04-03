@@ -53,7 +53,9 @@
             {% endfor %}
         </select>
         or <button type="button" id="next" class="pure-button button-action">
-            Go to the next question</button></p>
+		{% if next == 'end' %} Submit your last answer
+		{% else %} Go to the next question
+		{% endif %}</button></p>
 			</form>
 	</div>
 	<div id="done-ctn">
