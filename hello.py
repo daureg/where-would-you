@@ -17,13 +17,14 @@ VENUE_ID = re.compile(r'[0-9a-f]{24}')
 
 app = f.Flask(__name__)
 app.config.update(dict(
-    DEBUG=False,  # os.environ.get('DEBUG', True),
+    DEBUG=os.environ.get('DEBUG', False),
     MOCKING=os.environ.get('MOCKING', False),
     MONGO_URL=os.environ.get('MONGOHQ_URL', None),
     S3_HEADERS={'Cache-Control': 'max-age=86400',
                 'Expires': 'Tue, 15 Apr 2014 20:00:00 GMT'},
     S3_BUCKET_NAME='mthesis-survey',
-    S3_USE_HTTPS=False
+    S3_USE_HTTPS=True,
+    USE_S3=True
 ))
 s3 = FlaskS3(app)
 
