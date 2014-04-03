@@ -5,7 +5,7 @@ import re
 import pymongo
 from collections import defaultdict, Counter
 from datetime import datetime as dt
-from flask.ext.compress import Compress
+from flask_s3 import FlaskS3
 import FSCategories as fsc
 import flask as f
 import cities as c
@@ -14,21 +14,18 @@ import schemas as s
 import jsonschema as jsa
 QUESTIONS_NAME = q.QUESTIONS.keys() + ['end']
 VENUE_ID = re.compile(r'[0-9a-f]{24}')
-from flask.ext.assets import Environment, Bundle
 
 app = f.Flask(__name__)
 app.config.update(dict(
-    DEBUG=os.environ.get('DEBUG', True),
+    DEBUG=False,  # os.environ.get('DEBUG', True),
     MOCKING=os.environ.get('MOCKING', False),
-    MONGO_URL=os.environ.get('MONGOHQ_URL', None)
+    MONGO_URL=os.environ.get('MONGOHQ_URL', None),
+    S3_HEADERS={'Cache-Control': 'max-age=86400',
+                'Expires': 'Tue, 15 Apr 2014 20:00:00 GMT'},
+    S3_BUCKET_NAME='mthesis-survey',
+    S3_USE_HTTPS=False
 ))
-Compress(app)
-assets = Environment(app)
-
-js = Bundle('app.js', output='gen/packed.js')
-css = Bundle('app.css', output='gen/packed.css')
-assets.register('js_all', js)
-assets.register('css_all', css)
+s3 = FlaskS3(app)
 
 
 def connect_db():

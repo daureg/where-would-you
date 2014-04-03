@@ -3,8 +3,8 @@
 	<head>
 		<meta charset="utf-8">
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-        {% assets "js_all" %} <script type="text/javascript" src="{{ ASSET_URL }}"></script> {% endassets %}
-        {% assets "css_all" %} <link  rel='stylesheet' type='text/css' href="{{ ASSET_URL }}"> {% endassets %}
+        <script type="text/javascript" src="{{ url_for('static', filename='app.js.gz') }}"></script>
+        <link  rel='stylesheet' type='text/css' href="{{ url_for('static', filename='app.css.gz') }}">
 		<script type=text/javascript>
 		  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 		</script>
