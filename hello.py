@@ -184,6 +184,7 @@ def validate_space(ans):
 def email():
     """Register user email."""
     email = f.request.form['email'].strip()
+    f.session['email'] = email
     db = get_db().get_default_database()['answers']
     db.insert({'uid': str(f.session['id_']), 'when': dt.utcnow(),
                'email': email})
@@ -234,6 +235,7 @@ def thank_you():
         names = first + ' and' + last
     return f.render_template('end.html', done=done, names=names,
                              cities=cities, you=f.session['id_'],
+                             email=f.session['email'],
                              home=c.FULLNAMES[f.session['city']])
 
 

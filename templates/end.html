@@ -7,6 +7,7 @@ var $ = MINI.$;
 $(function() {
         var send = $('#send');
         var uid = $('#uid');
+	{% if email == '' %}
         send.on('click', function(e) {
             var email = document.getElementById('email').value;
             console.log("read: "+email);
@@ -22,6 +23,10 @@ $(function() {
             });
             e.preventDefault();
             });
+	{% else %}
+                $('#please').hide();
+                $('#form').hide();
+	{% endif %}
         });
 </script>
 <title>Thank you for completing  the “Where would you” survey</title>
@@ -39,7 +44,7 @@ $(function() {
 		secrets left.</p>
 
         <p>Your answers will be remembered through History as the one of the
-        mighty <em id="uid">{{ you|safe }}.</em> <span id="identity">(it does
+        mighty <em id="uid">{{ you|safe if email == '' else email|safe }}.</em> <span id="identity">(it does
         sound better, doesn't it).</span></p><p>
         <span id="please"> But if you want, you can also
             leave <label for="email">your email address</label>. </span>When we
