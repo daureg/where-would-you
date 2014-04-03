@@ -1,14 +1,15 @@
 {% extends "layout.html" %}
-{# <script src="{{ url_for('static', filename='isotope.pkgd.min.js') }}"></script> #}
 {% block body %}
 <script type=text/javascript>
 var MINI = require('minified');
 var $ = MINI.$;
 $(function() {
-        var send = $('#send');
+        var form_email = $('#f-email');
+        var form_joke = $('#really');
         var uid = $('#uid');
 	{% if email == '' %}
-        send.on('click', function(e) {
+        form_email.on('submit', function(e) {
+            e.preventDefault();
             var email = document.getElementById('email').value;
             console.log("read: "+email);
             $.request('post', $SCRIPT_ROOT + '/email', {email: email})
@@ -19,9 +20,16 @@ $(function() {
                 $('#identity').show();
                 document.getElementById('identity').style.display='inline';
                 $('#please').hide();
-                $('#form').hide();
+                form_email.hide();
+		document.getElementById('really').style.display='inline';
             });
+	    return false;
+            });
+        form_joke.on('submit', function(e) {
             e.preventDefault();
+            form_joke.hide();
+            document.getElementById('serious').style.display='block';
+	    return false;
             });
 	{% else %}
                 $('#please').hide();
@@ -35,26 +43,33 @@ $(function() {
 	<div id="end">
 		{% if done %}
 		<h1>Great Job!</h1>
-		{# <div class="js-isotope" data-isotope-options='{ "itemSelector": ".city", "masonry": { "columnWidth": 200 } }'> #}
 		{% for c in cities %}
 		<img class="city" src="{{ url_for('static', filename='city/'+c.short+'.jpg') }}">
 		{% endfor %}
-		{# </div> #}
 		<p>Thank to your time, {{ names|safe}} will soon have no more
 		secrets left.</p>
 
-        <p>Your answers will be remembered through History as the one of the
-        mighty <em id="uid">{{ you|safe if email == '' else email|safe }}.</em> <span id="identity">(it does
-        sound better, doesn't it).</span></p><p>
+        <div>
+	Your answers will be remembered through History as the one of the
+        mighty <em id="uid">{{ you|safe if email == '' else email|safe }}.</em>
+	<span id="identity"> It does sound better, doesn't it?</span>
+	<form id="really">
+		<label>Yes: <input type="radio" name="like" value="yes"></label>
+		<label>No: <input type="radio" name="like" value="no"></label>
+		<button type="submit" class="pure-button button-action send">send</button>
+	</form>
+	</div>
+	<p id="serious">Seriously? Don't you have <a href="https://www.facebook.com/">real things</a> to do instead?</p>
+	<p>
         <span id="please"> But if you want, you can also
             leave <label for="email">your email address</label>. </span>When we
         receive enough answers, we will be able to tell you how much 
         typical habitant of {{ home|safe }} you are (or not).</p>
 
-        <p id="form"> <input type="email" id="email" name="email" autofocus
-        autocomplete="on">
-		<button type="button" id="send" class="pure-button button-action">Send</button>
-        </p>
+	<form id="f-email">
+		<input type="email" id="email" name="email" autofocus autocomplete="on">
+		<button type="submit" class="pure-button button-action send">Send</button>
+	</form>
 		{% else %}
 		<h1>That was fast</h1>
 		<p>It looks like you skipped a lot of questions.</p><p> If you found

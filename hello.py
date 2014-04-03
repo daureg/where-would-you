@@ -216,6 +216,8 @@ def ask_user(question, city):
 
 @app.route('/thanks')
 def thank_you():
+    if 'id_' not in f.session or too_old(f.session):
+        return f.redirect(f.url_for('welcome'))
     answers = f.session['answers']
     done = True
     if len(answers) < 2:
@@ -257,7 +259,9 @@ def reset():
 
 def too_old(session):
     """Has the user expired."""
-    return (session['born'] - dt.utcnow()).total_seconds > 1800
+    age = (dt.utcnow() - session['born']).total_seconds()
+    app.logger.info(age)
+    return age > 1800
 
 
 def clean_user(session):
