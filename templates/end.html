@@ -33,7 +33,7 @@ $(function() {
             });
 	{% else %}
                 $('#please').hide();
-                $('#form').hide();
+                $('#f-email').hide();
 	{% endif %}
         });
 </script>
@@ -52,7 +52,7 @@ $(function() {
         <div>
 	Your answers will be remembered through History as the one of the
         mighty <em id="uid">{{ you|safe if email == '' else email|safe }}.</em>
-	<span id="identity"> It does sound better, doesn't it?</span>
+	<span id="identity">. It does sound better, doesn't it?</span>
 	<form id="really">
 		<label>Yes: <input type="radio" name="like" value="yes"></label>
 		<label>No: <input type="radio" name="like" value="no"></label>
