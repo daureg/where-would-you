@@ -249,13 +249,25 @@ def show_cities():
 
 @app.route('/reset')
 def reset():
-    [f.session.pop(_, None) for _ in ['answers', 'id_', 'qid', 'city']]
+    clean_user(f.session)
     return f.redirect(f.url_for('welcome'))
+
+
+def too_old(session):
+    """Has the user expired."""
+    return (session['born'] - dt.utcnow()).total_seconds > 1800
+
+
+def clean_user(session):
+    """Remove all user related info of `session`."""
+    [session.pop(_, None)
+     for _ in ['born', 'email', 'answers', 'id_', 'qid', 'city']]
 
 
 @app.route('/')
 def welcome():
-    if 'id_' not in f.session:
+    if 'id_' not in f.session or too_old(f.session):
+        clean_user(f.session)
         add_new_user()
     question = question_name(f.session)
     if not f.session['city']:
@@ -268,10 +280,9 @@ def welcome():
 def add_new_user():
     """Populate f.session with new user variable"""
     import uuid
-    id_ = uuid.uuid4()
-    qid = 0
     answers = defaultdict(list)
-    f.session.update(id_=id_, city=None, qid=qid, answers=answers)
+    f.session.update(id_=uuid.uuid4(), city=None, qid=0, answers=answers,
+                     born=dt.utcnow(), email="")
 
 
 @app.route('/venues', methods=['POST'])
