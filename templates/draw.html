@@ -6,7 +6,8 @@
         var ANSWER = [];
         var MINI = require('minified'); 
         var $ = MINI.$;
-        var HOUR_WAS_CHANGED = false;
+        var SHOUR_WAS_CHANGED = false;
+        var EHOUR_WAS_CHANGED = false;
         $(function() {
                 var pick = $('#pick');
                 var next = $('#next');
@@ -41,10 +42,16 @@
             <p>Would you do it more likely on <label>week days <input type="radio"
             name="day" value="weekday"></label>, <label>week-end <input type="radio"
             name="day" value="weekend"></label> or <label>both <input type="radio"
-            name="day" value="both"></label>.</p>
-		<p>Around which time: <input min="0" max="23" step="1" autofocus
-		value="12" type="range" id="hour" name="hour"><span
-            id="hour-value">&nbsp;12</span></p>
+            name="day" value="both"></label>?</p>
+        <p>Typically, you would
+        <label>start around <input min="0" max="23" step="1" autofocus
+            value="11" type="range" id="hour-start" name="hour-start"><span
+        id="hour-start-value">&nbsp;11:00</span></label>
+        and
+        <label>end around <input min="0" max="23" step="1" value="14"
+            type="range" id="hour-end" name="hour-end"><span
+            id="hour-end-value">&nbsp;14:00</span></label>.
+        </p>
 		<p>Answer the same question in another city
         <select id="pick">
             <option value="fake" selected="selected">&nbsp;</option>
@@ -63,7 +70,7 @@
 	</div>
 	</div>
 
-	<script src="{{ url_for('static', filename='rdraw.js') }}"></script>
+	<script src="{{ url_for('static', filename='draw.js') }}"></script>
 </body>
 </html>
 {% endblock %}

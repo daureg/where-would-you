@@ -22,7 +22,7 @@ function format_venues(venues, zone_id) {
         res += '<a href="'+venues[i].url+'">'+venues[i].name+'</a>';
         res += '</li>';
     }
-    res += '</ul><button class="pure-button" id="y_'+zone_id+'">Yes</button>&nbsp;';
+    res += '</ul><button class="pure-button pure_button_disabled" id="y_'+zone_id+'">Yes</button>&nbsp;';
     res += '<button class="pure-button" id="n_'+zone_id+'">No</button></p></div>';
     return res;
 }
@@ -115,13 +115,22 @@ map.on('draw:created', function (e) {
             .setContent(format_venues(res.r, id_))
             .openOn(map);
             focus_on_popup();
+            var yes_b = $('#y_'+id_);
+            var venues_checked = 0;
+            $('#venues li input').on('|click', function(e) {
+                new_venue = this.get('checked');
+                if (new_venue && venues_checked === 0) {yes_b.set('-pure_button_disabled');}
+                if (!new_venue && venues_checked === 1) {yes_b.set('+pure_button_disabled');}
+                venues_checked += new_venue ? 1 : -1;
+            });
             $('#n_'+id_).on('click', function(e) {
                 e.preventDefault();
                 close_popup(popup);
                 return false;
             });
-            $('#y_'+id_).on('click', function(e) {
+            yes_b.on('click', function(e) {
                 e.preventDefault();
+                if (this.is('.pure_button_disabled')) {return;}
                 var choices = $('#venues li input');
                 for (var i = 0; i < choices.length; i++) {
                     if (choices[i].checked) {
