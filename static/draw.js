@@ -71,8 +71,12 @@ var drawControl = new L.Control.Draw({
         polyline: false,
         marker: false,
         polygon: {
-            shapeOptions: { color: '#2ecc40' },
+            shapeOptions: { color: '#b22222' },
             allowIntersection: false,
+            showArea: false,
+        },
+        rectangle: {
+            shapeOptions: { color: '#1e90ff' },
             showArea: false,
         },
         circle: {
@@ -81,6 +85,12 @@ var drawControl = new L.Control.Draw({
         }
     },
     edit: false
+    /*
+   edit: {
+        featureGroup: drawnItems,
+        remove: false
+    }
+    */
 });
 
 map.addControl(drawControl);
@@ -164,10 +174,15 @@ function done_answering() {
 }
 function collect_time_answer() {
     var fields = $('#time input');
-    var timing = {hour: null};
+    var timing = {start: null, end: null};
     for (var i = 0; i < fields.length; i++) {
-        if (fields[i].type == 'range' && HOUR_WAS_CHANGED) {
-            timing.hour = parseInt(fields[i].value);
+        if (fields[i].type == 'range') {
+            if (fields[i].name === 'hour-start' && SHOUR_WAS_CHANGED) {
+                timing.start = parseInt(fields[i].value);
+            }
+            if (fields[i].name === 'hour-end' && EHOUR_WAS_CHANGED) {
+                timing.end = parseInt(fields[i].value);
+            }
         }
         else {
             timing[fields[i].value] = fields[i].checked;
@@ -185,32 +200,43 @@ function submit_answer(next_question, next_city) {
               {nq: next_question, timing: timing, ans: ans})
         .then(function(data) {
             console.log(data);
-            window.location = window.location.origin + '/' + next_question + '/' + next_city;
+            // window.location = window.location.origin + '/' + next_question + '/' + next_city;
         })
     .error(function(status, statusText, responseText) {
         console.log(status, statusText, responseText);
     });
 }
 
-var show_hour = document.getElementById('hour-value');
 function maybe_enable_time() {
     if (DAY_WAS_CHANGED && SHOUR_WAS_CHANGED && EHOUR_WAS_CHANGED) {
         $('#next').set('-pure_button_disabled');
     }
 }
+var show_hour_start = document.getElementById('hour-start-value');
+var show_hour_end = document.getElementById('hour-end-value');
 $('#done').on('click', function(e) {
     console.log('click');
     done_answering();
     e.preventDefault();
 });
-$('#hour').on('change', function(e) {
-    HOUR_WAS_CHANGED = true;
-    show_hour.innerHTML = '&nbsp;'+getTarget(e).value;
 $('#time form > p:nth-child(1) input').on('change', function(e) {
     DAY_WAS_CHANGED = true;
     maybe_enable_time();
 });
+$('#hour-start').on('change', function(e) {
+    SHOUR_WAS_CHANGED = true;
+    show_hour_start.innerHTML = '&nbsp;'+hour_val_length_two(getTarget(e))+':00';
+    maybe_enable_time();
 });
+$('#hour-end').on('change', function(e) {
+    EHOUR_WAS_CHANGED = true;
+    show_hour_end.innerHTML = '&nbsp;'+hour_val_length_two(getTarget(e))+':00';
+    maybe_enable_time();
+});
+function hour_val_length_two(target) {
+    var val = target.value;
+    return ((val.length === 1) ? '0' : '') + val;
+}
 /* Disable all interactions but the current popup */
 function focus_on_popup() {
     map.removeControl(drawControl);
