@@ -24,7 +24,7 @@ app.config.update(dict(
                 'Expires': 'Tue, 15 Apr 2014 20:00:00 GMT'},
     S3_BUCKET_NAME='mthesis-survey',
     S3_USE_HTTPS=True,
-    USE_S3=True
+    USE_S3=False
 ))
 s3 = FlaskS3(app)
 
@@ -215,13 +215,25 @@ def ask_user(question, city):
                              **q.QUESTIONS[question]._asdict())
 
 
+@app.route('/again', methods=['POST'])
+def again():
+    """Redirect user to first question in new city or welcome page"""
+    city = f.request.form['new_city'].strip()
+    if city not in c.SHORT_KEY:
+        recycle_user(f.session, None)
+        return f.redirect(f.url_for('welcome'))
+    recycle_user(f.session, city)
+    question = question_name(f.session)
+    return f.redirect(f.url_for('ask_or_record', city=city, question=question))
+
+
 @app.route('/thanks')
 def thank_you():
     if 'id_' not in f.session or too_old(f.session):
         return f.redirect(f.url_for('welcome'))
     answers = f.session['answers']
     done = True
-    if len(answers) < 2:
+    if len(answers) < 3:
         question = question_name(f.session)
         if question == 'end':
             done = False
@@ -229,6 +241,7 @@ def thank_you():
             return f.redirect(f.url_for('ask_or_record',
                                         city=f.session['city'],
                                         question=question))
+    f.session['done'].append(f.session['city'])
     cities = [ct for cts in answers.itervalues() for ct in cts]
     app.logger.info(Counter(cities))
     cities = [_ for _ in c.BCITIES if _.short in Counter(cities).keys()]
@@ -238,7 +251,8 @@ def thank_you():
         names = first + ' and' + last
     return f.render_template('end.html', done=done, names=names,
                              cities=cities, you=f.session['id_'],
-                             email=f.session['email'],
+                             email=f.session['email'], ocities=c.BCITIES,
+                             cities_done=f.session['done'],
                              home=c.FULLNAMES[f.session['city']])
 
 
@@ -268,7 +282,13 @@ def too_old(session):
 def clean_user(session):
     """Remove all user related info of `session`."""
     [session.pop(_, None)
-     for _ in ['born', 'email', 'answers', 'id_', 'qid', 'city']]
+     for _ in ['born', 'email', 'answers', 'id_', 'qid', 'city', 'done']]
+
+
+def recycle_user(session, city):
+    """Born again user so that it could answer again in a new city."""
+    answers = defaultdict(list)
+    session.update(city=city, qid=0, answers=answers, born=dt.utcnow())
 
 
 @app.route('/')
@@ -277,9 +297,12 @@ def welcome():
         clean_user(f.session)
         add_new_user()
     question = question_name(f.session)
-    if not f.session['city']:
+    if not f.session['city'] or question == 'end':
+        if question == 'end':
+            recycle_user(f.session, None)
         return f.render_template('index.html', cities=c.BCITIES,
-                                 question=question)
+                                 question=question,
+                                 total=len(QUESTIONS_NAME)-1)
     return f.redirect(f.url_for('ask_or_record', question=question,
                                 city=f.session['city']))
 
@@ -289,7 +312,7 @@ def add_new_user():
     import uuid
     answers = defaultdict(list)
     f.session.update(id_=uuid.uuid4(), city=None, qid=0, answers=answers,
-                     born=dt.utcnow(), email="")
+                     born=dt.utcnow(), email="", done=[])
 
 
 @app.route('/venues', methods=['POST'])

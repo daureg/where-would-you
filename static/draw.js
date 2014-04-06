@@ -200,7 +200,7 @@ function submit_answer(next_question, next_city) {
               {nq: next_question, timing: timing, ans: ans})
         .then(function(data) {
             console.log(data);
-            // window.location = window.location.origin + '/' + next_question + '/' + next_city;
+            window.location = window.location.origin + '/' + next_question + '/' + next_city;
         })
     .error(function(status, statusText, responseText) {
         console.log(status, statusText, responseText);
