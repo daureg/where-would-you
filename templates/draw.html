@@ -8,6 +8,7 @@
         var $ = MINI.$;
         var SHOUR_WAS_CHANGED = false;
         var EHOUR_WAS_CHANGED = false;
+        var DAY_WAS_CHANGED = false;
         $(function() {
                 var pick = $('#pick');
                 var next = $('#next');
@@ -20,6 +21,7 @@
                     });
                 next.on('click', function(e) {
                     e.preventDefault();
+		    if (this.is('.pure_button_disabled')) {return;}
                     var city = "{{ city |safe}}";
                     var after = "{{ next|safe }}";
                     submit_answer(after, city);
@@ -59,7 +61,9 @@
                 <option value="{{ c.short }}">{{ c.long }}</option>
             {% endfor %}
         </select>
-        or <button type="button" id="next" class="pure-button button-action">
+        or
+        #}<button type="button" id="next" class="pure-button button-action
+		pure_button_disabled">
 		{% if next == 'end' %} Submit your last answer
 		{% else %} Go to the next question
 		{% endif %}</button></p>

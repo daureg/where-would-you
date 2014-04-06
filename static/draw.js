@@ -193,6 +193,11 @@ function submit_answer(next_question, next_city) {
 }
 
 var show_hour = document.getElementById('hour-value');
+function maybe_enable_time() {
+    if (DAY_WAS_CHANGED && SHOUR_WAS_CHANGED && EHOUR_WAS_CHANGED) {
+        $('#next').set('-pure_button_disabled');
+    }
+}
 $('#done').on('click', function(e) {
     console.log('click');
     done_answering();
@@ -201,6 +206,10 @@ $('#done').on('click', function(e) {
 $('#hour').on('change', function(e) {
     HOUR_WAS_CHANGED = true;
     show_hour.innerHTML = '&nbsp;'+getTarget(e).value;
+$('#time form > p:nth-child(1) input').on('change', function(e) {
+    DAY_WAS_CHANGED = true;
+    maybe_enable_time();
+});
 });
 /* Disable all interactions but the current popup */
 function focus_on_popup() {
