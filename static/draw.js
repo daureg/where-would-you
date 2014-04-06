@@ -1,3 +1,13 @@
+/***  little hack starts here ***/
+// http://jsfiddle.net/yVLJf/52/
+L.Map = L.Map.extend({
+    openPopup: function(popup) {
+        //        this.closePopup();  // just comment this
+        this._popup = popup;
+        return this.addLayer(popup).fire('popupopen', { popup: this._popup });
+    }
+});
+/***  end of hack ***/
 var MINI = require('minified');
 var $ = MINI.$;
 $('#question').show();
@@ -14,7 +24,7 @@ function barycenter(points) {
 
 /* take a array of {name: "", url: ""} an return a list of link */
 function format_venues(venues, zone_id) {
-    var res = '<div id="venues"><p>Are you thinking of any of these places:<ul>';
+    var res = '<div id="venues_'+zone_id+'"><p>Are you thinking of any of these places:<ul>';
     for (var i = venues.length - 1; i >= 0; i--) {
         var vid = venues[i].url.substr(25);
         res += '<li>';
@@ -84,50 +94,92 @@ var drawControl = new L.Control.Draw({
             showRadius: false,
         }
     },
-    edit: false
-    /*
-   edit: {
+    edit: {
         featureGroup: drawnItems,
+        edit: {
+            selectedPathOptions: {color: '#111' }
+        },
         remove: false
     }
-    */
 });
 
 map.addControl(drawControl);
 
-map.on('draw:created', function (e) {
-    var type = e.layerType,
-        zone = e.layer,
-        id_ = ANSWER.length,
-        geo = zone.toGeoJSON().geometry;
-    if (id_ > 2 || !bbounds.contains(zone.getBounds())) {
-        return;
+map.on('draw:created', function (e) { add_or_edit(e, 'create'); has_given_all_answers();});
+map.on('draw:edited', function (e) {e.layers.eachLayer(function(e) { add_or_edit(e, 'edit'); }); has_given_all_answers();});
+
+/* Find id in ANSWER from leaflet id */
+function get_answer_id(lid) {
+    for (var i = 0; i < ANSWER.length; i++) {
+        if (ANSWER[i].lid === lid) { return ANSWER[i].id_; }
     }
-    var radius = 0;
-    console.log(zone);
+    return null;
+}
+function add_or_edit(e, what) {
+    /* get info about area */
+    var type = null, zone = null, lid = null, radius = null, center = null,
+        id_ = null, geo = null;
+    if (what === 'create') {
+        type = e.layerType;
+        zone = e.layer;
+    }
+    else {
+        zone = e;
+    }
+    id_ = ANSWER.indexOf(undefined);
+    geo = zone.toGeoJSON().geometry;
+    if (what === 'edit') {
+        lid = zone._leaflet_id;
+        id_ = get_answer_id(lid);
+        type = ANSWER[id_].type;
+    }
+    /* discard invalid area */
+    if (what === 'create') {
+        if (id_ > 2 || !bbounds.contains(zone.getBounds())) { return; }
+    }
+    else {
+        console.log(bbounds.contains(zone.getBounds()));
+        if (!bbounds.contains(zone.getBounds())) {
+            delete ANSWER[id_];
+            drawnItems.removeLayer(zone);
+            return; }
+    }
+    /* get more info */
+    radius = 0;
     if (type === 'circle') {
         radius = zone._mRadius;
         center = zone._latlng;
+        console.log('center of '+id_+': '+center.toString());
     }
     else {
         type = 'polygon';
         center = barycenter(zone._latlngs);
     }
-    ANSWER.push({id_: id_, type: type, geo: geo, radius: radius, venues: []});
+    /* register geographic part of answer */
+    if (what === 'create') {
+        ANSWER[id_] = {id_: id_, type: type, geo: geo, radius: radius, venues: []};
+    }
+    else {
+        ANSWER[id_].geo = geo;
+        ANSWER[id_].radius = radius;
+        ANSWER[id_].venues = [];
+    }
+    /* request venues info */
     var query = {geo: JSON.stringify(geo), radius: radius};
     $.request('post', $SCRIPT_ROOT + '/venues', query)
     .then(function(data) {
         var res = $.parseJSON(data);
         console.log(res.r);
         if (res.r.length > 0) {
+            console.log('open at: '+center.toString());
             var popup = L.popup({closeButton: false, closeOnClick: false, keepInView: true})
             .setLatLng(center)
             .setContent(format_venues(res.r, id_))
-            .openOn(map);
+            .addTo(map);
             focus_on_popup();
             var yes_b = $('#y_'+id_);
             var venues_checked = 0;
-            $('#venues li input').on('|click', function(e) {
+            $('#venues_'+id_+' li input').on('|click', function(e) {
                 new_venue = this.get('checked');
                 if (new_venue && venues_checked === 0) {yes_b.set('-pure_button_disabled');}
                 if (!new_venue && venues_checked === 1) {yes_b.set('+pure_button_disabled');}
@@ -141,7 +193,7 @@ map.on('draw:created', function (e) {
             yes_b.on('click', function(e) {
                 e.preventDefault();
                 if (this.is('.pure_button_disabled')) {return;}
-                var choices = $('#venues li input');
+                var choices = $('#venues_'+id_+' li input');
                 for (var i = 0; i < choices.length; i++) {
                     if (choices[i].checked) {
                         ANSWER[id_].venues.push(choices[i].name);
@@ -154,16 +206,26 @@ map.on('draw:created', function (e) {
         }
         else {
             $('#done-ctn').show();
-            if (ANSWER.length === 3)  { done_answering(); }
+            if (has_given_all_answers()) {}
         }
     })
     .error(function(status, statusText, responseText) {
         console.log(status, statusText, responseText);
     });
     drawnItems.addLayer(zone);
-});
+    lid = zone._leaflet_id;
+    ANSWER[id_].lid = lid;
+}
 
-
+function has_given_all_answers() {
+    var r = 0;
+    for (var i = 0; i < ANSWER.length; i++) {
+        if (ANSWER[i] !== undefined) { r++; }
+    }
+    if (r === 3) { $('.leaflet-draw-section')[0].style.display = "none"; }
+    if (r === 0) { $('#done-ctn').hide(); $('#skip').hide(); }
+    return r === 3;
+}
 function done_answering() {
     map.removeControl(drawControl);
     map.dragging.disable();
@@ -239,7 +301,7 @@ function hour_val_length_two(target) {
 }
 /* Disable all interactions but the current popup */
 function focus_on_popup() {
-    map.removeControl(drawControl);
+    $('.leaflet-draw-section').hide();
     map.dragging.disable();
     $('#done-ctn').hide();
     $('#skip').hide();
@@ -247,11 +309,14 @@ function focus_on_popup() {
 /* Enable back some interactions */
 function close_popup(p) {
     map.closePopup(p);
-    map.addControl(drawControl);
-    map.dragging.enable();
-    $('#done-ctn').show();
-    if (ANSWER.length === 3)  { done_answering(); }
+    if ($('.leaflet-popup-content-wrapper').length === 0) {
+        $('.leaflet-draw-section').show();
+        map.dragging.enable();
+        $('#done-ctn').show();
+    }
+    has_given_all_answers();
 }
+$('#done-ctn').on('click', done_answering);
 function getTarget(obj) {
     var targ;
     var e=obj;
@@ -262,3 +327,19 @@ function getTarget(obj) {
     return targ;
 }
 // }, 20000);
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function (searchElement, fromIndex) {
+        if ( this === undefined || this === null ) { throw new TypeError( '"this" is null or not defined' ); }
+        var length = this.length >>> 0; // Hack to convert object.length to a UInt32
+        fromIndex = +fromIndex || 0;
+        if (Math.abs(fromIndex) === Infinity) { fromIndex = 0; }
+        if (fromIndex < 0) {
+            fromIndex += length;
+            if (fromIndex < 0) { fromIndex = 0; }
+        }
+        for (;fromIndex < length; fromIndex++) {
+            if (this[fromIndex] === searchElement) { return fromIndex; }
+        }
+        return -1;
+    };
+}

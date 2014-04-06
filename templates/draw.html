@@ -3,7 +3,7 @@
 	<title>Where would you {{ label|safe }} in {{ city|safe }}?</title>
 	<script type="text/javascript">
         var $BBOX={{ bbox|safe }};
-        var ANSWER = [];
+        var ANSWER = [undefined, undefined, undefined];
         var MINI = require('minified'); 
         var $ = MINI.$;
         var SHOUR_WAS_CHANGED = false;
@@ -64,8 +64,7 @@
             {% endfor %}
         </select>
         or
-        #}<button type="button" id="next" class="pure-button button-action
-		pure_button_disabled">
+	#}<button type="button" id="next" class="pure-button button-action pure_button_disabled">
 		{% if next == 'end' %} Submit your last answer
 		{% else %} Go to the next question
 		{% endif %}</button></p>
