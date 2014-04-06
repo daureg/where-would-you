@@ -137,10 +137,13 @@ def validate_time(ans):
         return False
     fields = set(ans.keys())
     period = ['both', 'weekend', 'weekday']
-    if fields != set(period + ['hour']):
+    if fields != set(period + ['start', 'end']):
         return False
-    hour = ans['hour']
-    if not isinstance(hour, int) and not (0 <= hour <= 23):
+    start = ans['start']
+    end = ans['end']
+    if not isinstance(start, int) and not (0 <= start <= 23):
+        return False
+    if not isinstance(end, int) and not (0 <= end <= 23):
         return False
     for key in period:
         if not isinstance(ans[key], bool):
