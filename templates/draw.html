@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-	<title>Where would you {{ label|safe }} in {{ city|safe }}?</title>
+	<title>Where would you {{ label|safe }} in {{ lcity|safe }}?</title>
 	<script type="text/javascript">
         var $BBOX={{ bbox|safe }};
         var ANSWER = [undefined, undefined, undefined];
@@ -9,6 +9,7 @@
         var SHOUR_WAS_CHANGED = false;
         var EHOUR_WAS_CHANGED = false;
         var DAY_WAS_CHANGED = false;
+        var LONG_CITY = "{{ lcity }}";
         $(function() {
                 var pick = $('#pick');
                 var next = $('#next');

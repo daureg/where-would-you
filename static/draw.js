@@ -1,3 +1,4 @@
+INVALID_POPUP = [];
 /***  little hack starts here ***/
 // http://jsfiddle.net/yVLJf/52/
 L.Map = L.Map.extend({
@@ -105,15 +106,45 @@ var drawControl = new L.Control.Draw({
 
 map.addControl(drawControl);
 
-map.on('draw:created', function (e) { add_or_edit(e, 'create'); has_given_all_answers();});
-map.on('draw:edited', function (e) {e.layers.eachLayer(function(e) { add_or_edit(e, 'edit'); }); has_given_all_answers();});
+map.on('draw:created', function (e) {remove_invalid_popup(); add_or_edit(e, 'create'); has_given_all_answers();});
+map.on('draw:edited', function (e) {
+    remove_invalid_popup();
+    e.layers.eachLayer(function(e) { add_or_edit(e, 'edit'); });
+    has_given_all_answers();
+});
 
 /* Find id in ANSWER from leaflet id */
 function get_answer_id(lid) {
     for (var i = 0; i < ANSWER.length; i++) {
-        if (ANSWER[i].lid === lid) { return ANSWER[i].id_; }
+        if (ANSWER[i] !== undefined && ANSWER[i].lid === lid) { return ANSWER[i].id_; }
     }
     return null;
+}
+/* Display a message at center to explain an area was not added */
+function invalid_msg(center, what, id_) {
+    var pos = map.latLngToContainerPoint(center);
+    var msg = "“I'm sorry, I'm afraid I can't do this.”<br>";
+    var explain = "";
+    if (what === 'many') {
+        explain = 'You have already given enough answers, click the done button.';
+    }
+    else {
+        explain = 'Choose a location inside the blue box or skip the question altogether';
+        explain += ' if our conception of ' + LONG_CITY +' is too short-sighted.';
+    }
+    var p = document.createElement('p');
+    p.innerHTML = msg + explain;
+    p.id = 'invalid_'+id_;
+    var popup = L.popup().setLatLng(center).setContent(msg + explain);
+    INVALID_POPUP.push(popup);
+    map.openPopup(popup);
+}
+function remove_invalid_popup() {
+    var p = null;
+    do {
+        p = INVALID_POPUP.pop();
+        if (p !== undefined) {map.closePopup(p);}
+    } while (p !== undefined);
 }
 function add_or_edit(e, what) {
     /* get info about area */
@@ -133,18 +164,7 @@ function add_or_edit(e, what) {
         id_ = get_answer_id(lid);
         type = ANSWER[id_].type;
     }
-    /* discard invalid area */
-    if (what === 'create') {
-        if (id_ > 2 || !bbounds.contains(zone.getBounds())) { return; }
-    }
-    else {
-        console.log(bbounds.contains(zone.getBounds()));
-        if (!bbounds.contains(zone.getBounds())) {
-            delete ANSWER[id_];
-            drawnItems.removeLayer(zone);
-            return; }
-    }
-    /* get more info */
+    /* get more info (need center to display invalid tooltip) */
     radius = 0;
     if (type === 'circle') {
         radius = zone._mRadius;
@@ -154,6 +174,19 @@ function add_or_edit(e, what) {
     else {
         type = 'polygon';
         center = barycenter(zone._latlngs);
+    }
+    /* discard invalid area */
+    if (what === 'create') {
+        if (id_ > 2) {invalid_msg(center, 'many', id_); return;}
+        if (!bbounds.contains(zone.getBounds())) {invalid_msg(center, 'outside', id_); return; }
+    }
+    else {
+        if (!bbounds.contains(zone.getBounds())) {
+            delete ANSWER[id_];
+            drawnItems.removeLayer(zone);
+            invalid_msg(center, 'outside', id_);
+            return;
+        }
     }
     /* register geographic part of answer */
     if (what === 'create') {
@@ -223,7 +256,8 @@ function has_given_all_answers() {
         if (ANSWER[i] !== undefined) { r++; }
     }
     if (r === 3) { $('.leaflet-draw-section')[0].style.display = "none"; }
-    if (r === 0) { $('#done-ctn').hide(); $('#skip').hide(); }
+    if (r === 0) { $('#done-ctn').hide(); $('#skip').show(); }
+    if (r > 0) { $('#skip').hide(); }
     return r === 3;
 }
 function done_answering() {
