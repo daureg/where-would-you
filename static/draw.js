@@ -305,7 +305,7 @@ function submit_answer(next_question, next_city) {
 
 function maybe_enable_time() {
     if (DAY_WAS_CHANGED && SHOUR_WAS_CHANGED && EHOUR_WAS_CHANGED) {
-        $('#next').set('-pure_button_disabled');
+        $('#next').set({$: '-pure_button_disabled', title: ''});
     }
 }
 var show_hour_start = document.getElementById('hour-start-value');
