@@ -22,7 +22,7 @@ app.config.update(dict(
     MONGO_URL=os.environ.get('MONGOHQ_URL', None),
     S3_HEADERS={'Cache-Control': 'max-age=86400',
                 'Expires': 'Tue, 15 Apr 2014 20:00:00 GMT'},
-    S3_BUCKET_NAME='mthesis-survey',
+    S3_BUCKET_NAME=os.environ.get('S3_BUCKET_NAME', ''),
     S3_USE_HTTPS=True,
     USE_S3=False
 ))
