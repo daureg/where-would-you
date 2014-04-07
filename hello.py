@@ -259,12 +259,7 @@ def thank_you():
 
 @app.route('/cities')
 def show_cities():
-    imgs = [_ for _ in c.BCITIES
-            if _.short in ['paris', 'helsinki', 'berlin', 'rome', 'newyork',
-                           'barcelona', 'sanfrancisco', 'amsterdam',
-                           'stockholm', 'london', 'prague', 'losangeles',
-                           'washington', 'moscow']]
-    return f.render_template('cities.html', cities=imgs)
+    return f.render_template('cities.html', cities=c.BCITIES)
 
 
 @app.route('/reset')
