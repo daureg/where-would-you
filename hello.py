@@ -22,9 +22,9 @@ app.config.update(dict(
     MONGO_URL=os.environ.get('MONGOHQ_URL', None),
     S3_HEADERS={'Cache-Control': 'max-age=86400',
                 'Expires': 'Tue, 15 Apr 2014 20:00:00 GMT'},
-    S3_BUCKET_NAME=os.environ.get('S3_BUCKET_NAME', ''),
+    S3_BUCKET_NAME=os.environ.get('S3_BUCKET_NAME', None),
     S3_USE_HTTPS=True,
-    USE_S3=False
+    USE_S3=True
 ))
 s3 = FlaskS3(app)
 
@@ -208,7 +208,8 @@ def ask_user(question, city):
     next_question = next_question_name(f.session)
     previous = f.session['answers'].get(question, []) + [city]
     other_cities = [_ for _ in c.BCITIES if _.short not in previous]
-    return f.render_template('draw.html', bbox=c.BBOXES[city],
+    full_name = c.FULLNAMES[city]
+    return f.render_template('draw.html', bbox=c.BBOXES[city], lcity=full_name,
                              total=len(QUESTIONS_NAME)-1, cities=other_cities,
                              current=question, city=f.session['city'],
                              next=next_question, id_=f.session['qid'],
