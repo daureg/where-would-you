@@ -1,12 +1,12 @@
 SOURCES_JS = static/minified-custom.js \
-			 static/leaflet-src.js \
-			 static/leaflet.draw-src.js
+	     static/leaflet-src.js \
+	     static/leaflet.draw-src.js
 SOURCES_CSS = static/normalize.css \
-			  static/buttons.css \
-			  static/leaflet.css \
-			  static/leaflet.draw.css \
-			  static/mine.css \
-			  static/wait.css
+	      static/buttons.css \
+	      static/leaflet.css \
+	      static/leaflet.draw.css \
+	      static/mine.css \
+	      static/wait.css
 PROD = 1
 
 all: app.css app.js
@@ -20,6 +20,7 @@ else
 endif
 	rm __tmp.css
 	mv app.css static/app.css
+	gzip -fqk -9 static/app.css
 
 app.js: $(SOURCES_JS)
 ifeq ($(PROD), 1)
@@ -34,6 +35,8 @@ else
 	sed -i  "s/='rdraw.js'/='draw.js'/" templates/draw.html
 endif
 	# mv app.js static/app.js
+	gzip -fqk -9 static/app.js
+	gzip -fqk -9 static/rdraw.js
 
 clean:
-	rm -f static/app.css static/app.js
+	rm -f static/app.css* static/app.js*
