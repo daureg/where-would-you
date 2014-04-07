@@ -35,6 +35,15 @@ $(function() {
                 $('#please').hide();
                 $('#f-email').hide();
 	{% endif %}
+        var again = $('#again');
+        var pick = $('#pick');
+        var again_button = $('#do-again');
+        pick.on('change', function(e) {
+                again_button.set('-pure_button_disabled +button_action');
+        });
+        again.on('&submit', function(e) {
+                if (again_button.is('pure_button_disabled')) {return false;}
+        });
         });
 </script>
 <title>Thank you for completing  the “Where would you” survey</title>
@@ -59,7 +68,7 @@ $(function() {
 		<button type="submit" class="pure-button button-action send">send</button>
 	</form>
 	</div>
-	<p id="serious">Seriously? Don't you have <a href="https://www.facebook.com/">real things</a> to do instead?</p>
+	<p id="serious">Seriously? Don't you have <a target="_blank" href="https://www.facebook.com/">real things</a> to do instead?</p>
 	<p>
         <span id="please"> But if you want, you can also
             leave <label for="email">your email address</label>. </span>When we
@@ -70,6 +79,36 @@ $(function() {
 		<input type="email" id="email" name="email" autofocus autocomplete="on">
 		<button type="submit" class="pure-button button-action send">Send</button>
 	</form>
+
+            <form id="again" action="/again" method="post">
+                <p>
+                If you are a globetrotter, you can also pick another city where
+                you had lived 
+			<select id="pick" name="new_city">
+				<option value="fake" selected="selected"></option>
+				{% for city in ocities %}
+                {% if city.short == 'moscow' %}
+                <optgroup label="Europe, North">
+                {% elif city.short == 'london' %}
+                </optgroup><optgroup label="Europe, Middle">
+                {% elif city.short == 'rome' %}
+                </optgroup><optgroup label="Europe, South">
+                {% elif city.short == 'newyork' %}
+                 </optgroup><optgroup label="USA, East">
+                {% elif city.short == 'chicago' %}
+                </optgroup><optgroup label="USA, Middle">
+                {% elif city.short == 'sanfrancisco' %}
+                </optgroup><optgroup label="USA, West">
+                {% endif %}
+                {% if city.short not in cities_done %}
+				<option value="{{ city.short }}">{{ city.long }}</option>
+                {% endif %}
+                {% if city.short == 'seattle' %}
+                </optgroup>
+                {% endif %}
+				{% endfor %}
+            </select> and <button id="do-again" class="send pure-button pure_button_disabled"
+				type="submit">answer the same questions there.</button></p></form>
 		{% else %}
 		<h1>That was fast</h1>
 		<p>It looks like you skipped a lot of questions.</p><p> If you found

@@ -22,14 +22,15 @@ $(function() {
 
             <p>Thank you for helping us understand how people live differently
             in various cities.</p><p>You will be presented with a map and a
-            series of activities. For each one, draw between 1 and 3 areas
-            where you would do it, using the tools on top left corner. You can
-            also skip it if it is not relevant to you.</p><p>After that, you
-            can answer the same question in another city or move on to the
-            next question.</p>
+            series of {{ total|safe }} activities. For each one, draw between
+            1 and 3 areas where you would do it, using the tools on top left
+            corner. You can also skip it if it is not relevant to
+            you.</p>
+            {# <p>After that, you can answer the same question in another
+            city or move on to the next question.</p> #}
 
             <form id="choose">
-			<p>First, pick the city most familiar to you (if you have lived
+			<p>Start by picking the city most familiar to you (if you have lived
             elsewhere than Helsinki, we would love to hear from it)
 			<select id="pick" autofocus>
 				<option value="fake" selected="selected">&nbsp;</option>
