@@ -30,7 +30,7 @@ function format_venues(venues, zone_id) {
         var vid = venues[i].url.substr(25);
         res += '<li>';
         res += '<input name="'+vid+'" type="checkbox">&nbsp;';
-        res += '<a href="'+venues[i].url+'">'+venues[i].name+'</a>';
+        res += '<a target="_blank" href="'+venues[i].url+'">'+venues[i].name+'</a>';
         res += '</li>';
     }
     res += '</ul><button class="pure-button pure_button_disabled" id="y_'+zone_id+'">Yes</button>&nbsp;';
