@@ -1,0 +1,73 @@
+/* From: http://cssdeck.com/labs/rounded-previous-and-next-arrows */
+.next,
+.prev {
+    /* color: #333; */
+    display: inline-block;
+    /* font: normal bold 1.25em 'Open Sans',sans-serif; */
+    overflow: hidden;
+    position: relative;
+    text-decoration: none;
+    width: auto;
+    cursor: pointer;
+}
+
+.next,
+.prev { padding: 0em 1.65em; }
+
+.next { text-align: right; float: right;}
+.prev { float: left;}
+
+.next:before,
+.next:after,
+.prev:before,
+.prev:after {
+    background: #333;
+    -moz-border-radius: 0.15em;
+    -webkit-border-radius: 0.15em;
+    border-radius: 0.15em;
+    content: "";
+    display: block;
+    height: 0.35em;
+    position: absolute;
+    right: 0;
+    top: 55%;
+    width: 1em;
+}
+
+.prev:before,
+.prev:after { left: 0; }
+
+.next:before,
+.prev:before {
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.next:after,
+.prev:after {
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+
+.prev:after,
+.next:before { margin-top: -.5em; }
+
+.next:hover,
+.next:focus,
+.prev:hover,
+.prev:focus { color: #ff851b; }
+
+.next:hover:before,
+.next:hover:after,
+.next:focus:before,
+.next:focus:after,
+.prev:hover:before,
+.prev:hover:after,
+.prev:focus:before,
+.prev:focus:after { background: #ff851b; }

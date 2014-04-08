@@ -1,4 +1,5 @@
-INVALID_POPUP = [];
+var INVALID_POPUP = [];
+var VENUES_PER_PAGE = 6;
 /***  little hack starts here ***/
 // http://jsfiddle.net/yVLJf/52/
 L.Map = L.Map.extend({
@@ -25,15 +26,23 @@ function barycenter(points) {
 
 /* take a array of {name: "", url: ""} an return a list of link */
 function format_venues(venues, zone_id) {
-    var res = '<div id="venues_'+zone_id+'"><p>Are you thinking of any of these places:<ul>';
-    for (var i = venues.length - 1; i >= 0; i--) {
+    var res = '<div id="venues_'+zone_id+'"><p>Are you thinking of any of these places?';
+    for (var i = 0; i < venues.length; i++) {
+        if (i % VENUES_PER_PAGE === 0) {
+            res += '<ul id="page_'+zone_id+'_'+Math.floor(i/ VENUES_PER_PAGE)+'"';
+            res += 'class="venues">';
+        }
         var vid = venues[i].url.substr(25);
         res += '<li>';
         res += '<input name="'+vid+'" type="checkbox">&nbsp;';
         res += '<a target="_blank" href="'+venues[i].url+'">'+venues[i].name+'</a>';
         res += '</li>';
+        if (i % VENUES_PER_PAGE === (VENUES_PER_PAGE-1) || i === venues.length-1) { res += '</ul>'; }
     }
-    res += '</ul><button class="pure-button pure_button_disabled" id="y_'+zone_id+'">Yes</button>&nbsp;';
+    res += '<nav id="move_'+zone_id+'"><span class="prev" id="p_'+zone_id+'">Prev</span>';
+    res += '<span id="dpage_'+zone_id+'"></span>';
+    res += '<span class="next" id="nx_'+zone_id+'">Next</span></nav>';
+    res += '<button class="pure-button pure_button_disabled" id="y_'+zone_id+'">Yes</button>&nbsp;';
     res += '<button class="pure-button" id="n_'+zone_id+'">No</button></p></div>';
     return res;
 }
@@ -146,6 +155,16 @@ function remove_invalid_popup() {
         if (p !== undefined) {map.closePopup(p);}
     } while (p !== undefined);
 }
+function change_page(current, dir, total, zone_id) {
+    $('#page_'+zone_id+'_'+current).hide();
+    current = (current + dir) % total;
+    if (current < 0) { current += total; }
+    $('#page_'+zone_id+'_'+current).show();
+    if (total >= 2) {
+        $('#dpage_'+zone_id).fill((current+1)+'/'+total);
+    }
+    return current;
+}
 function add_or_edit(e, what) {
     /* get info about area */
     var type = null, zone = null, lid = null, radius = null, center = null,
@@ -204,15 +223,28 @@ function add_or_edit(e, what) {
         var res = $.parseJSON(data);
         console.log(res.r);
         if (res.r.length > 0) {
-            console.log('open at: '+center.toString());
-            var popup = L.popup({closeButton: false, closeOnClick: false, keepInView: true})
+            var nb_venues = res.r.length;
+            console.log('get '+nb_venues+' venues.');
+            var nb_pages = Math.ceil(nb_venues / VENUES_PER_PAGE);
+            var popup = L.popup({closeButton: false, closeOnClick: false, keepInView: true, maxWidth: 400})
             .setLatLng(center)
             .setContent(format_venues(res.r, id_))
             .addTo(map);
+            var current_page = 0;
+            if (nb_pages <= 1) {
+                $('#move_'+id_).hide();
+            }
+            else {
+                $('#dpage_'+id_).fill('1/'+nb_pages);
+            }
+            $('#page_'+id_+'_'+current_page).show();
+            // $$slider('svenue_'+id_, {speed: 200, auto: false, mode: 'scroll', height: 'auto' });
+            $("span#nx_"+id_).on('click', function(){ current_page = change_page(current_page, 1, nb_pages, id_);});
+            $("span#p_"+id_).on('click', function(){ current_page = change_page(current_page, -1, nb_pages, id_);});
             focus_on_popup();
             var yes_b = $('#y_'+id_);
             var venues_checked = 0;
-            $('#venues_'+id_+' li input').on('|click', function(e) {
+            $('#venues_'+id_+' ul li input').on('|click', function(e) {
                 new_venue = this.get('checked');
                 if (new_venue && venues_checked === 0) {yes_b.set('-pure_button_disabled');}
                 if (!new_venue && venues_checked === 1) {yes_b.set('+pure_button_disabled');}
@@ -226,7 +258,7 @@ function add_or_edit(e, what) {
             yes_b.on('click', function(e) {
                 e.preventDefault();
                 if (this.is('.pure_button_disabled')) {return;}
-                var choices = $('#venues_'+id_+' li input');
+                var choices = $('#venues_'+id_+' ul li input');
                 for (var i = 0; i < choices.length; i++) {
                     if (choices[i].checked) {
                         ANSWER[id_].venues.push(choices[i].name);

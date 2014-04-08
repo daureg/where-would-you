@@ -6,6 +6,7 @@ SOURCES_CSS = static/normalize.css \
 	      static/leaflet.css \
 	      static/leaflet.draw.css \
 	      static/mine.css \
+	      static/arrow.css \
 	      static/wait.css
 PROD = 1
 

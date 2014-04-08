@@ -1,3 +1,4 @@
+nav {text-align: center; vertical-align:middle; margin-bottom: .75em;}
 input[type="range"] {
     vertical-align: middle;
     margin: 0 .45em;
@@ -17,7 +18,7 @@ a {color: #1e90ff; /* Dodger Blue */ }
 	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 	background: #ff851b; /* this is an orange */
 }
-#venues ul {list-style: none;}
+ul.venues {display: none; list-style: none;}
 body {
 	background-color: #f9fcf9;
 	color: #333;

@@ -324,7 +324,7 @@ def display_venues():
         space = {'$geoWithin': geo}
     res = venues.find({'loc': space, 'cat': {'$in': cat}},
                       {'name': 1, 'loc': 1, 'likes': 1},
-                      sort=[('likes', pymongo.DESCENDING)], limit=7)
+                      sort=[('likes', pymongo.DESCENDING)], limit=6*6)
     url = 'https://foursquare.com/v/'
     ven = [{'name': v['name'], 'url': url+v['_id']} for v in res]
     return f.jsonify(r=ven)
