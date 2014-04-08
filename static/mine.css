@@ -18,7 +18,13 @@ a {color: #1e90ff; /* Dodger Blue */ }
 	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 	background: #ff851b; /* this is an orange */
 }
-ul.venues {display: none; list-style: none;}
+.address {font-size: 0.75em; color: #888;}
+ul.venues {
+	margin: 0.5em 0em;
+	padding: 0;
+	display: none;
+	list-style: none;
+}
 body {
 	background-color: #f9fcf9;
 	color: #333;
