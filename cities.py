@@ -20,6 +20,29 @@ def bbox_to_polygon(bbox):
             [lat_ur, long_ur], [lat_ur, long_bl]]
 
 
+def bbox_to_geojson(bbox, latitude_first=True):
+    """Return a 5 points GeoJSON polygon based on the bottom left and upper
+    right coordinates of bbox [lat_bl, long_bl, lat_ur, long_ur]
+    (5 because the polygon needs to be closed, see:
+    https://groups.google.com/d/msg/mongodb-user/OPouYFHS_zU/cS21L0XAMkkJ )
+    Or in other words ;(
+    http://toblerity.org/shapely/manual.html#shapely.geometry.box
+    >>> bbox_to_polygon([37, -122, 35, -120])
+    {'type': 'Polygon', 'coordinates': [[[-122, 37], [-120, 37], [-120, 35], [-122, 35], [-122, 37]]]}
+    """
+    assert(len(bbox) == 4)
+    lat_bl, long_bl, lat_ur, long_ur = bbox
+    r = {'type': 'Polygon'}
+    r['coordinates'] = [[[long_bl, lat_bl], [long_ur, lat_bl],
+                         [long_ur, lat_ur], [long_bl, lat_ur],
+                         [long_bl, lat_bl]]]
+    return r
+
+
+def inside_bbox(bbox):
+    return {'$geoWithin': {'$geometry': bbox_to_geojson(bbox)}}
+
+
 NYC = [40.583, -74.040, 40.883, -73.767]
 WAS = [38.8515, -77.121, 38.9848, -76.902]
 SAF = [37.7123, -122.531, 37.84, -122.35]
@@ -51,3 +74,4 @@ BCITIES = [City(short_name(city), city) for city in NAMES]
 SHORT_KEY = [short_name(city) for city in NAMES]
 FULLNAMES = dict(zip(SHORT_KEY, NAMES))
 BBOXES = dict(zip(SHORT_KEY, [bbox_to_polygon(b) for b in CITIES]))
+GBOXES = dict(zip(SHORT_KEY, [inside_bbox(b) for b in CITIES]))
