@@ -42,16 +42,36 @@ def venues_list(db, question, city):
                      {'name': 1, 'loc': 1, 'likes': 1, 'where': 1})
     res = {}
     for venue in venues:
-        coords = [round(_, 6) for _ in reversed(venue['loc']['coordinates'])]
-        res[venue['name']] = [venue['likes'], venue.get('where')] + coords
+        loc = [round(_, 6) for _ in reversed(venue['loc']['coordinates'])]
+        id_ = [str(venue['_id'])]
+        res[venue['name']] = [venue['likes'], venue.get('where')] + loc + id_
     import ujson
     import codecs
-    with codecs.open('{}_{}.js'.format(city, question), 'w') as result:
-        result.write('PVENUES='+ujson.dumps(res, result)+';')
+    import gzip
+    writer = codecs.getwriter('utf8')
+    filename = 'static/q/{}_{}.js.gz'.format(city, question)
+    k = Key(bucket)
+    k.key = filename
+    k.set_metadata('Content-Encoding', 'gzip')
+    with gzip.open(filename, 'wb') as result:
+        writer(result).write('var CATS='+ujson.dumps(cats)+';\n')
+        writer(result).write('var VENUES='+ujson.dumps(res)+';')
+    with open(filename) as result:
+        k.set_contents_from_file(result)
+        print('sent ' + filename)
+    k.make_public()
 
 if __name__ == '__main__':
     import sys
     import pymongo
     city = sys.argv[1]
     db = pymongo.MongoClient().foursquare.venue
-    venues_list(db, QUESTIONS.keys()[0], city)
+    import boto
+    from boto.s3.key import Key
+    S3_BUCKET_NAME=os.environ.get('S3_BUCKET_NAME', None),
+    conn = boto.connect_s3()
+    bucket = conn.get_bucket(S3_BUCKET_NAME)
+    import cities
+    for city in cities.SHORT_KEY:
+        for question in QUESTIONS.iterkeys():
+            venues_list(db, question, city)
