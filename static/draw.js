@@ -1,12 +1,13 @@
+var MARKERS = [];
 var ZONES_VIEW = [{nb_res: -1, view: undefined, seen: false},{nb_res: -1, view: undefined, seen: false},{nb_res: -1, view: undefined, seen: false},];
-var PREVIOUS_VIEW = undefined;
+var PREVIOUS_VIEW = null;
 var ORIGINAL_ZOOM = 18;
 var VIEW_IS_FOCUSED = false;
 /* Return bounds of the next zone, or the general view before any focus */
 function next_view() {
     var zone;
     for (var i = 0; i < ZONES_VIEW.length; i++) {
-        zone = ZONES_VIEW[i]
+        zone = ZONES_VIEW[i];
         if (zone.view !== undefined && zone.nb_res > 0 && !zone.seen) {
             ZONES_VIEW[i].seen = true;
             return zone.view;
@@ -27,7 +28,7 @@ L.Map = L.Map.extend({
 });
 /***  end of hack ***/
 var MINI = require('minified');
-var $ = MINI.$, HTML=MINI.HTML;
+var _=MINI._, $=MINI.$, HTML=MINI.HTML;
 $('#question').show();
 
 /* return the LatLng in the middle of an array of LatLng */
@@ -42,6 +43,7 @@ function barycenter(points) {
 
 /* take a array of {name: "", url: ""} an return a list of link */
 function format_venues(venues, zone_id) {
+    var yes_class = "pure-button pure_button_disabled";
     var res = '<div id="venues_'+zone_id+'"><p>Are you thinking of any of these places?';
     for (var i = 0; i < venues.length; i++) {
         if (i % VENUES_PER_PAGE === 0) {
@@ -50,7 +52,9 @@ function format_venues(venues, zone_id) {
         }
         var vid = venues[i].url.substr(25);
         res += '<li>';
-        res += '<input name="'+vid+'" type="checkbox">&nbsp;';
+        res += '<input name="'+vid+'" type="checkbox"';
+        if (vid === CLICKED_ID) {res += ' checked="checked"'; yes_class="pure-button";}
+        res += '>&nbsp;';
         res += '<a target="_blank" href="'+venues[i].url+'">'+venues[i].name+'</a>';
         res += '<span class="address">,&nbsp;'+venues[i].where+'</span>';
         res += '</li>';
@@ -59,7 +63,7 @@ function format_venues(venues, zone_id) {
     res += '<nav id="move_'+zone_id+'"><span class="prev" id="p_'+zone_id+'">Prev</span>';
     res += '<span id="dpage_'+zone_id+'"></span>';
     res += '<span class="next" id="nx_'+zone_id+'">Next</span></nav>';
-    res += '<button class="pure-button pure_button_disabled" id="y_'+zone_id+'">Yes</button>&nbsp;';
+    res += '<button class="'+yes_class+'" id="y_'+zone_id+'">Yes</button>&nbsp;';
     res += '<button class="pure-button" id="n_'+zone_id+'">No</button></p></div>';
     return res;
 }
@@ -79,6 +83,7 @@ function create_map(div_id, center, main_layer, bbox) {
     L.polygon(bbox, {fill: false, weight: 3}).addTo(map);
     $('#loading').hide();
     $('.spinner').hide();
+    $('#suggest').show();
     return map;
 }
 var bbox = $BBOX;
@@ -177,6 +182,7 @@ function remove_invalid_popup() {
         p = INVALID_POPUP.pop();
         if (p !== undefined) {map.closePopup(p);}
     } while (p !== undefined);
+
 }
 function change_page(current, dir, total, zone_id) {
     $('#page_'+zone_id+'_'+current).hide();
@@ -323,15 +329,27 @@ function add_or_edit(e, what, nb_zones) {
     drawnItems.addLayer(zone);
     lid = zone._leaflet_id;
     ANSWER[id_].lid = lid;
+    remove_markers();
 }
 
+/* remove venue markers */
+function remove_markers() {
+    var p = MARKERS.pop();
+    while (p) {
+        map.removeLayer(p);
+        p = MARKERS.pop();
+    }
+}
 function has_given_all_answers() {
     var r = 0;
     for (var i = 0; i < ANSWER.length; i++) {
         if (ANSWER[i] !== undefined) { r++; }
     }
     if (r === 3) { $('.leaflet-draw-section')[0].style.display = "none"; }
-    else { $('.leaflet-draw-section')[0].style.display = "block"; }
+    else {
+        $('.leaflet-draw-section')[0].style.display = "block";
+        $('#suggest').show();
+    }
     if (r === 0) { $('#done-ctn').hide(); $('#skip').show(); }
     if (r > 0) { $('#skip').hide(); }
     return r === 3;
@@ -342,6 +360,7 @@ function done_answering() {
     $('#time').show();
     $('#done-ctn').hide();
     $('#skip').hide();
+    $('#suggest').hide();
     carto_layer.setOpacity(0.5);
 }
 function collect_time_answer() {
@@ -414,11 +433,13 @@ function focus_on_popup() {
     map.dragging.disable();
     $('#done-ctn').hide();
     $('#skip').hide();
+    $('#suggest').hide();
 }
 /* Enable back some interactions */
 function close_popup(p, view) {
     if (p !== null) {map.closePopup(p);}
     if (view === null) {view = next_view();}
+    CANCEL_REQUEST = false;
     map.fitBounds(view);
     if ($('.leaflet-popup-content-wrapper').length === 0) {
         $('.leaflet-draw-section').show();

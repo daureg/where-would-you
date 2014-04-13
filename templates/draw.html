@@ -30,6 +30,7 @@
                     });
                 });
 	</script>
+	<script async type="text/javascript" src="{{ url_for('static', filename='q/'+city+'_'+current+'.js') }}"></script>
 </head>
 <body>
 
@@ -44,6 +45,12 @@
 	<div id="spinner_1"></div>
 	<div id="spinner_2"></div>
         <div class="spinner"><div class="dot1"></div><div class="dot2"></div></div>
+	<div id="suggest">
+	<form accept-charset="utf-8">
+		<input type="search" name="venue" id="search-venue" autocomplete="off">
+	</form>
+	<ul id="suggestions"></ul>
+	</div>
 		<div id="time">
 			<form>
             <p>Would you do it more likely on <label>week days <input type="radio"
