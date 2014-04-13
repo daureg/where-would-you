@@ -27,7 +27,7 @@ L.Map = L.Map.extend({
 });
 /***  end of hack ***/
 var MINI = require('minified');
-var $ = MINI.$;
+var $ = MINI.$, HTML=MINI.HTML;
 $('#question').show();
 
 /* return the LatLng in the middle of an array of LatLng */
@@ -150,7 +150,6 @@ function get_answer_id(lid) {
 }
 /* Display a message at center to explain an area was not added */
 function invalid_msg(center, what, id_) {
-    var pos = map.latLngToContainerPoint(center);
     var msg = "“I'm sorry, I'm afraid I can't do this.”<br>";
     var explain = "";
     if (what === 'many') {
@@ -242,10 +241,15 @@ function add_or_edit(e, what, nb_zones) {
     /* prepare interaction */
     map.dragging.disable();
     ZONES_VIEW[id_].view = zone.getBounds();
+    var pos = map.latLngToContainerPoint(center);
+    var wait = $('#spinner_'+id_);
+    wait.fill(HTML('<div class="spinner"><div class="dot1"></div><div class="dot2"></div></div>'));
+    wait.set({'$top': (pos.y - 20)+'px', '$left': (pos.x - 20)+'px'});
     /* request venues info */
     var query = {geo: JSON.stringify(geo), radius: radius};
     $.request('post', $SCRIPT_ROOT + '/venues', query)
     .then(function(data) {
+        wait.fill(HTML(''));
         var res = $.parseJSON(data);
         ZONES_VIEW[id_].nb_res = res.r.length;
         if (res.r.length > 0) {
@@ -312,6 +316,7 @@ function add_or_edit(e, what, nb_zones) {
         }
     })
     .error(function(status, statusText, responseText) {
+        wait.fill(HTML(''));
         map.dragging.enable();
         console.log(status, statusText, responseText);
     });

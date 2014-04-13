@@ -1,3 +1,9 @@
+#spinner_0,
+#spinner_1,
+#spinner_2 {
+	position: fixed;
+	z-index:  50;
+}
 .spinner {
   margin: 10% auto;
   width: 40px;
@@ -5,8 +11,8 @@
   position: relative;
   text-align: center;
   
-  -webkit-animation: rotate 2.0s infinite linear;
-  animation: rotate 2.0s infinite linear;
+  -webkit-animation: rotate 1.5s infinite linear;
+  animation: rotate 1.5s infinite linear;
 }
 
 .dot1, .dot2 {
@@ -15,21 +21,17 @@
   display: inline-block;
   position: absolute;
   top: 0;
-  background-color: #555;
+  background-color: #ff851b;
   border-radius: 100%;
   
-  -webkit-animation: bounce 2.0s infinite ease-in-out;
-  animation: bounce 2.0s infinite ease-in-out;
-}
-
-#saving > .dot1, #saving > .dot2 { 
-    background-color: #f9fcf9 !important;
+  -webkit-animation: bounce 1.5s infinite ease-in-out;
+  animation: bounce 1.5s infinite ease-in-out;
 }
 .dot2 {
   top: auto;
   bottom: 0px;
-  -webkit-animation-delay: -1.0s;
-  animation-delay: -1.0s;
+  -webkit-animation-delay: -0.75s;
+  animation-delay: -0.75s;
 }
 
 @-webkit-keyframes rotate { 100% { -webkit-transform: rotate(360deg) }}
