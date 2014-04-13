@@ -1,4 +1,13 @@
+app.js
+req
+static/cdraw.js
+static/images/
+static/minified-src.js
+static/star.json
+templates/fuzzy.html
+templates/help
 Chunker.py
+static/q/
 RequestsMonitor.py
 api_keys.py
 grab_addresses.py
