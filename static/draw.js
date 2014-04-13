@@ -1,3 +1,19 @@
+var ZONES_VIEW = [{nb_res: -1, view: undefined, seen: false},{nb_res: -1, view: undefined, seen: false},{nb_res: -1, view: undefined, seen: false},];
+var PREVIOUS_VIEW = undefined;
+var ORIGINAL_ZOOM = 18;
+var VIEW_IS_FOCUSED = false;
+/* Return bounds of the next zone, or the general view before any focus */
+function next_view() {
+    var zone;
+    for (var i = 0; i < ZONES_VIEW.length; i++) {
+        zone = ZONES_VIEW[i]
+        if (zone.view !== undefined && zone.nb_res > 0 && !zone.seen) {
+            ZONES_VIEW[i].seen = true;
+            return zone.view;
+        }
+    }
+    return PREVIOUS_VIEW;
+}
 var INVALID_POPUP = [];
 var VENUES_PER_PAGE = 6;
 /***  little hack starts here ***/
@@ -60,7 +76,6 @@ function create_map(div_id, center, main_layer, bbox) {
     var map = new L.Map(div_id, {zoom: 14, minZoom: 10, center: center,
                                  layers: [main_layer], maxBounds: bbounds})
         .fitBounds(bbounds);
-    console.log(bbounds);
     L.polygon(bbox, {fill: false, weight: 3}).addTo(map);
     $('#loading').hide();
     $('.spinner').hide();
@@ -76,6 +91,8 @@ var center = new L.LatLng(0.5*(bbox[0][0]+bbox[2][0]),
 var map = null;
 // setTimeout(function() {
 map = create_map('map', center, carto_layer, bbox);
+PREVIOUS_VIEW = map.getBounds();
+ORIGINAL_ZOOM = map.getZoom();
 
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
@@ -116,10 +133,11 @@ var drawControl = new L.Control.Draw({
 
 map.addControl(drawControl);
 
-map.on('draw:created', function (e) {remove_invalid_popup(); add_or_edit(e, 'create'); has_given_all_answers();});
+map.on('draw:created', function (e) {remove_invalid_popup(); add_or_edit(e, 'create', 1); has_given_all_answers();});
 map.on('draw:edited', function (e) {
     remove_invalid_popup();
-    e.layers.eachLayer(function(e) { add_or_edit(e, 'edit'); });
+    var nb_zones = Object.keys(e.layers._layers).length;
+    e.layers.eachLayer(function(layer) { add_or_edit(layer, 'edit', nb_zones); });
     has_given_all_answers();
 });
 
@@ -151,6 +169,11 @@ function invalid_msg(center, what, id_) {
 }
 function remove_invalid_popup() {
     var p = null;
+    if (map.getBoundsZoom(map.getBounds()) >= ORIGINAL_ZOOM) {
+        PREVIOUS_VIEW = map.getBounds();
+    }
+    VIEW_IS_FOCUSED = false;
+    for (var i=0; i<2; i++) {ZONES_VIEW[i] = {nb_res: -1, view: undefined, seen: false};}
     do {
         p = INVALID_POPUP.pop();
         if (p !== undefined) {map.closePopup(p);}
@@ -166,7 +189,7 @@ function change_page(current, dir, total, zone_id) {
     }
     return current;
 }
-function add_or_edit(e, what) {
+function add_or_edit(e, what, nb_zones) {
     /* get info about area */
     var type = null, zone = null, lid = null, radius = null, center = null,
         id_ = null, geo = null;
@@ -189,7 +212,6 @@ function add_or_edit(e, what) {
     if (type === 'circle') {
         radius = zone._mRadius;
         center = zone._latlng;
-        console.log('center of '+id_+': '+center.toString());
     }
     else {
         type = 'polygon';
@@ -217,23 +239,39 @@ function add_or_edit(e, what) {
         ANSWER[id_].radius = radius;
         ANSWER[id_].venues = [];
     }
+    /* prepare interaction */
+    map.dragging.disable();
+    ZONES_VIEW[id_].view = zone.getBounds();
     /* request venues info */
     var query = {geo: JSON.stringify(geo), radius: radius};
     $.request('post', $SCRIPT_ROOT + '/venues', query)
     .then(function(data) {
         var res = $.parseJSON(data);
-        console.log(res.r);
+        ZONES_VIEW[id_].nb_res = res.r.length;
         if (res.r.length > 0) {
             var nb_venues = res.r.length;
             console.log('get '+nb_venues+' venues.');
             var nb_pages = Math.ceil(nb_venues / VENUES_PER_PAGE);
-            var popup = L.popup({closeButton: false, closeOnClick: false, keepInView: true,
-		                 minWidth: 300, maxWidth: 400})
+            var popup = L.popup({closeButton: false, closeOnClick: false, keepInView: false,
+                                 minWidth: 300, maxWidth: 400})
             .setLatLng(center)
             .setContent(format_venues(res.r, id_))
             .addTo(map);
-            var old_view = map.getBounds();
-            map.fitBounds(zone.getBounds());
+            var old_view = PREVIOUS_VIEW;
+            if (map.getBoundsZoom(map.getBounds()) >= ORIGINAL_ZOOM) {
+                old_view = map.getBounds();
+            }
+            if (nb_zones === 1) {map.fitBounds(zone.getBounds());}
+            else {
+                old_view = null;
+                console.log('more than 1 edit');
+                if (!VIEW_IS_FOCUSED) {
+                    console.log('no focus so focus on me');
+                    map.fitBounds(ZONES_VIEW[id_].view);
+                    ZONES_VIEW[id_].seen = true;
+                    VIEW_IS_FOCUSED = true;
+                }
+            }
             var current_page = 0;
             if (nb_pages <= 1) {
                 $('#move_'+id_).hide();
@@ -268,12 +306,13 @@ function add_or_edit(e, what) {
                 close_popup(popup, old_view);
             });
         }
-        else {
+        else { // no popup
             $('#done-ctn').show();
-            if (has_given_all_answers()) {}
+            has_given_all_answers();
         }
     })
     .error(function(status, statusText, responseText) {
+        map.dragging.enable();
         console.log(status, statusText, responseText);
     });
     drawnItems.addLayer(zone);
@@ -287,6 +326,7 @@ function has_given_all_answers() {
         if (ANSWER[i] !== undefined) { r++; }
     }
     if (r === 3) { $('.leaflet-draw-section')[0].style.display = "none"; }
+    else { $('.leaflet-draw-section')[0].style.display = "block"; }
     if (r === 0) { $('#done-ctn').hide(); $('#skip').show(); }
     if (r > 0) { $('#skip').hide(); }
     return r === 3;
@@ -342,7 +382,6 @@ function maybe_enable_time() {
 var show_hour_start = document.getElementById('hour-start-value');
 var show_hour_end = document.getElementById('hour-end-value');
 $('#done').on('click', function(e) {
-    console.log('click');
     done_answering();
     e.preventDefault();
 });
@@ -373,7 +412,8 @@ function focus_on_popup() {
 }
 /* Enable back some interactions */
 function close_popup(p, view) {
-    map.closePopup(p);
+    if (p !== null) {map.closePopup(p);}
+    if (view === null) {view = next_view();}
     map.fitBounds(view);
     if ($('.leaflet-popup-content-wrapper').length === 0) {
         $('.leaflet-draw-section').show();
