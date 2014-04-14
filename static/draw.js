@@ -162,7 +162,7 @@ function invalid_msg(center, what, id_) {
     }
     else {
         explain = 'Choose a location inside the blue box or skip the question altogether';
-        explain += ' if our conception of ' + LONG_CITY +' is too short-sighted.';
+        explain += ' if my conception of ' + LONG_CITY +' is too short-sighted.';
     }
     var p = document.createElement('p');
     p.innerHTML = msg + explain;

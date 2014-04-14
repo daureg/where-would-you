@@ -253,7 +253,6 @@ def thank_you():
                                         question=question))
     f.session['done'].append(f.session['city'])
     cities = [ct for cts in answers.itervalues() for ct in cts]
-    app.logger.info(Counter(cities))
     cities = [_ for _ in c.BCITIES if _.short in Counter(cities).keys()]
     names = ', '.join([_.long for _ in cities])
     first, _, last = names.rpartition(',')
@@ -280,7 +279,6 @@ def reset():
 def too_old(session):
     """Has the user expired."""
     age = (dt.utcnow() - session['born']).total_seconds()
-    app.logger.info(age)
     return age > 1800
 
 

@@ -10,7 +10,7 @@ SOURCES_CSS = static/normalize.css \
 	      static/mine.css \
 	      static/arrow.css \
 	      static/wait.css
-PROD = 0
+PROD = 1
 
 all: app.css app.js
 
@@ -27,8 +27,8 @@ endif
 
 app.js: $(SOURCES_JS) static/draw.js static/complete.js
 ifeq ($(PROD), 1)
-	# sed -e '/console.log(/d' $(SOURCES_JS) > __tmp.js
-	# node_modules/uglify-js/bin/uglifyjs __tmp.js -cm > $@
+	sed -e '/console.log(/d' $(SOURCES_JS) > __tmp.js
+	node_modules/uglify-js/bin/uglifyjs __tmp.js -cm > $@
 	sed -e '/console.log(/d' static/draw.js > __tmp.js
 	sed -e '/console.log(/d' static/complete.js >> __tmp.js
 	node_modules/uglify-js/bin/uglifyjs __tmp.js -cm > static/cdraw.js
