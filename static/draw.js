@@ -1,3 +1,4 @@
+var ANIM_OPTIONS = {pan: {animate: true, duration: 0.75}, animate: true};
 var MARKERS = [];
 var ZONES_VIEW = [{nb_res: -1, view: undefined, seen: false},{nb_res: -1, view: undefined, seen: false},{nb_res: -1, view: undefined, seen: false},];
 var PREVIOUS_VIEW = null;
@@ -271,13 +272,13 @@ function add_or_edit(e, what, nb_zones) {
             if (map.getBoundsZoom(map.getBounds()) >= ORIGINAL_ZOOM) {
                 old_view = map.getBounds();
             }
-            if (nb_zones === 1) {map.fitBounds(zone.getBounds());}
+            if (nb_zones === 1) {map.fitBounds(zone.getBounds(), ANIM_OPTIONS);}
             else {
                 old_view = null;
                 console.log('more than 1 edit');
                 if (!VIEW_IS_FOCUSED) {
                     console.log('no focus so focus on me');
-                    map.fitBounds(ZONES_VIEW[id_].view);
+                    map.fitBounds(ZONES_VIEW[id_].view, ANIM_OPTIONS);
                     ZONES_VIEW[id_].seen = true;
                     VIEW_IS_FOCUSED = true;
                 }
@@ -445,7 +446,7 @@ function close_popup(p, view) {
     if (p !== null) {map.closePopup(p);}
     if (view === null) {view = next_view();}
     CANCEL_REQUEST = false;
-    map.fitBounds(view);
+    map.fitBounds(view, ANIM_OPTIONS);
     if ($('.leaflet-popup-content-wrapper').length === 0) {
         $('.leaflet-draw-section').show();
         map.dragging.enable();

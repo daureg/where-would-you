@@ -15,7 +15,7 @@ function vcenter(lat, lon, vid, name) {
     var marker = L.marker(center, {title: name, clickable: false, keyboard: false});
     MARKERS.push(marker);
     marker.addTo(map);
-	map.setView(center, 17, {pan: {animate: true, duration: 5.0}, animate: true});
+	map.setView(center, 17, ANIM_OPTIONS);
 	$('#suggestions').fill('');
 	document.getElementById('search-venue').value = '';
 	CLICKED_ID = vid;
