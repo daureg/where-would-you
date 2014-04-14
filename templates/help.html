@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block body %}
+<title>A few more instructions</title>
+	</head>
+	<body>
+	<div id="morehelp">
+        <p>Well, I kind of lied to you. Before you start, I want to give you a
+        few more explanations to save you time later.</p>
+
+        <p>First, after reading the question at the top like
+        <img src="{{ url_for('static', filename='help/question.png') }}" alt="question">,
+        you can either
+        <img src="{{ url_for('static', filename='help/skip.png') }}" alt="skip">
+        it or answer it.</p>
+
+        <p> To do so, use the tools on the top left
+        <img src="{{ url_for('static', filename='help/draw.png') }}" alt="draw">
+        to draw circles or polygons on the city map.
+	{# <img src="{{ url_for('static', filename='help/map.png') }}" alt="map"> #}
+        </p>
+	
+	<p>Then you may choose some specific locations
+        <img width="350px" src="{{ url_for('static', filename='help/venue.png') }}" alt="venue">
+        </p>
+	
+	<p>Finally, you have three options:
+        <ol>
+            <li>add up to 2 more areas in the same manner.</li>
+            <li>click the edit button
+	    <img src="{{ url_for('static', filename='help/done.png') }}" alt="done">
+	    to move previous areas, change their size or delete them (by
+	    dragging them outside the city).
+	    {# <img src="{{ url_for('static', filename='help/edit.png') }}" alt="edit"> #}
+	    </li>
+            <li>move to the next question, by clicking the Done button
+             and telling at which time you would do this activity.
+            {# <img src="{{ url_for('static', filename='help/time.png') }}" alt="time"> #}
+	    </li>
+        </ol></p>
+
+        <p>Sometimes, you may be thinking of a place without remembering
+        its address. Thus you can look up its name on the top right box
+        <img src="{{ url_for('static', filename='help/search.png') }}" alt="search">
+	and click it to center the map on it (you still have to draw a
+	shape though, as surroundings are more informative than single
+	locations).</p>
+
+        <p>Now you can really <a href="{{question}}/{{city}}" class="pure-button
+            button_action">start</a>, I swear.</p>
+    </div>
+{% endblock %}

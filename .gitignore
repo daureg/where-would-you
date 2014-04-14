@@ -1,3 +1,4 @@
+*.png
 app.js
 req
 static/cdraw.js

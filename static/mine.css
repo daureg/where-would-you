@@ -89,7 +89,20 @@ body {
 	font-family: 'Open Sans', sans-serif;
 	line-height: 1.45;
 }
-#help, #end {
+#morehelp img {
+    vertical-align: middle;
+    border: 1px solid #ff851b;
+    box-shadow: 0 0 11px rgba(10, 10, 10, 0.45);
+    border-radius: 5px;
+    margin: .25em;
+}
+#morehelp .button_action {
+	padding: .25em .75em;
+}
+#morehelp {
+    width: 42em !important;
+}
+#morehelp, #help, #end {
 	margin: 1em auto;
 	width: 36em;
 	max-width: 80%;
@@ -140,10 +153,10 @@ select {color: #333;}
 }
 #done-ctn {
     position: absolute !important;
-    /* top: 33%; */
     top: 205px;
     left: 10px;
     font-size: 1.3em;
+    background-color: transparent !important;
 }
 #map {
     width: 100%;

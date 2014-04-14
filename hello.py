@@ -205,6 +205,8 @@ def ask_user(question, city):
                                     question=question))
     if question == 'end':
         return f.redirect(f.url_for('thank_you'))
+    if not f.session['read_help']:
+        return f.redirect(f.url_for('help'))
     next_question = next_question_name(f.session)
     previous = f.session['answers'].get(question, []) + [city]
     other_cities = [_ for _ in c.BCITIES if _.short not in previous]
@@ -226,6 +228,13 @@ def again():
     recycle_user(f.session, city)
     question = question_name(f.session)
     return f.redirect(f.url_for('ask_or_record', city=city, question=question))
+
+
+@app.route('/help')
+def help():
+    f.session['read_help'] = True
+    return f.render_template('help.html', city=f.session['city'],
+                             question=question_name(f.session))
 
 
 @app.route('/thanks')
@@ -308,7 +317,7 @@ def add_new_user():
     import uuid
     answers = defaultdict(list)
     f.session.update(id_=uuid.uuid4(), city=None, qid=0, answers=answers,
-                     born=dt.utcnow(), email="", done=[])
+                     born=dt.utcnow(), email="", done=[], read_help=False)
 
 
 @app.route('/venues', methods=['POST'])
