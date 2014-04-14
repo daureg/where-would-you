@@ -341,13 +341,16 @@ def display_venues():
         geo = fake_geo(int(radius)) if app.config['MOCKING'] else geo
         space = {'$near': {'$geometry': geo, '$maxDistance': radius}}
     else:
-        space = {'$geoWithin': geo}
+        space = {'$geoWithin': {'$geometry': geo}}
     res = venues.find({'loc': space, 'cat': {'$in': cat}},
                       {'name': 1, 'loc': 1, 'likes': 1, 'where': 1},
                       sort=[('likes', pymongo.DESCENDING)], limit=6*6)
     url = 'https://foursquare.com/v/'
-    ven = [{'name': v['name'], 'where': v['where'], 'url': url+v['_id']}
+    ven = [{'name': v['name'], 'where': v.get('where', ''),
+            'url': url+v['_id']}
            for v in res]
+    # from time import sleep
+    # sleep(0.5)
     return f.jsonify(r=ven)
 
 
