@@ -26,10 +26,9 @@ $(function() {
 	    return false;
             });
         form_joke.on('submit', function(e) {
-            e.preventDefault();
             form_joke.hide();
             document.getElementById('serious').style.display='block';
-	    return false;
+            $.request('post', $SCRIPT_ROOT + '/like');
             });
 	{% else %}
                 $('#please').hide();

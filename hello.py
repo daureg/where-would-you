@@ -320,6 +320,17 @@ def add_new_user():
                      born=dt.utcnow(), email="", done=[], read_help=False)
 
 
+@app.route('/like', methods=['POST'])
+def like():
+    db = get_db().get_default_database()['answer']
+    like = {'uid': str(f.session['id_']), 'when': dt.utcnow(), 'like': True}
+    try:
+        db.insert(like, continue_on_error=True)
+    except pymongo.errors.PyMongoError as oops:
+        app.logger.warn(str(oops))
+    return "ACK"
+
+
 @app.route('/venues', methods=['POST'])
 def display_venues():
     venues = get_db().get_default_database()['venue']
