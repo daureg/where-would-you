@@ -415,17 +415,22 @@ $('#time form > p:nth-child(1) input').on('change', function(e) {
 });
 $('#hour-start').on('change', function(e) {
     SHOUR_WAS_CHANGED = true;
-    show_hour_start.innerHTML = '&nbsp;'+hour_val_length_two(getTarget(e))+':00';
+    show_hour_start.innerHTML = '&nbsp;'+hour_val_length_two(getTarget(e));
     maybe_enable_time();
 });
 $('#hour-end').on('change', function(e) {
     EHOUR_WAS_CHANGED = true;
-    show_hour_end.innerHTML = '&nbsp;'+hour_val_length_two(getTarget(e))+':00';
+    show_hour_end.innerHTML = '&nbsp;'+hour_val_length_two(getTarget(e));
     maybe_enable_time();
 });
 function hour_val_length_two(target) {
     var val = target.value;
-    return ((val.length === 1) ? '0' : '') + val;
+    var nval = parseInt(val);
+    var suffix = (nval > 12) ? 'p.m.' : 'a.m.';
+    if (nval === 12) {suffix = 'noon';}
+    nval = (nval % 12);
+    if (nval === 0) {nval = 12; suffix = 'p.m.';}
+    return ((nval < 10) ? '&nbsp;' : '') + nval + ' '+suffix;
 }
 /* Disable all interactions but the current popup */
 function focus_on_popup() {
