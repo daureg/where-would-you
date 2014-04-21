@@ -30,6 +30,17 @@ QUESTIONS = OrderedDict([
 ])
 
 
+def questions_to_latex():
+    """Display question names and categories as latex array"""
+    res = []
+    for name, question in QUESTIONS.iteritems():
+        cat = ', '.join(question.cat).replace('&', '\\&')
+        text = 'Where would you {}?'.format(question.label)
+        name = '\\texttt{{{}}}'.format(name)
+        res.append(' & '.join([name, text, cat]))
+    print(' \\\\\n'.join(res))
+
+
 def venues_list(db, question, city):
     """Export list of venue for a given (city, question) to a JSON file."""
     import FSCategories as fsc
@@ -63,12 +74,15 @@ def venues_list(db, question, city):
 
 if __name__ == '__main__':
     import sys
+    questions_to_latex()
+    sys.exit()
+    import os
     import pymongo
     city = sys.argv[1]
     db = pymongo.MongoClient().foursquare.venue
     import boto
     from boto.s3.key import Key
-    S3_BUCKET_NAME=os.environ.get('S3_BUCKET_NAME', None),
+    S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', None),
     conn = boto.connect_s3()
     bucket = conn.get_bucket(S3_BUCKET_NAME)
     import cities
