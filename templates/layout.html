@@ -5,6 +5,7 @@
         <link href='//fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
         <script type="text/javascript" src="{{ url_for('static', filename='app.js.gz') }}"></script>
         <link  rel='stylesheet' type='text/css' href="{{ url_for('static', filename='app.css.gz') }}">
+	<!--[if gte IE 9]> <style type="text/css"> .gradient { filter: none; } </style> <![endif]-->
 		<script type=text/javascript>
 		  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 		</script>
