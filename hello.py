@@ -21,7 +21,7 @@ app.config.update(dict(
     MOCKING=os.environ.get('MOCKING', False),
     MONGO_URL=os.environ.get('MONGOHQ_URL', None),
     S3_HEADERS={'Cache-Control': 'max-age=86400',
-                'Expires': 'Tue, 15 Apr 2014 20:00:00 GMT'},
+                'Expires': 'Sat, 31 May 2014 23:00:00 GMT'},
     S3_BUCKET_NAME=os.environ.get('S3_BUCKET_NAME', None),
     S3_USE_HTTPS=True,
     USE_S3=True
