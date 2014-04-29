@@ -52,10 +52,22 @@ def venues_list(db, question, city):
     venues = db.find({'loc': space, 'cat': {'$in': cats}},
                      {'name': 1, 'loc': 1, 'likes': 1, 'where': 1})
     res = {}
+
+    def insert_venue(new_venue):
+        """insert `new_venue` by giving it a unique name."""
+        name = new_venue['name']
+        i = 0
+        while name in res:
+            name += ' '
+            i += 1
+        # if i > 250:
+        #     print(u'at least {} {} in {}'.format(i, name.strip(), city))
+        res[name] = [venue['likes'], venue.get('where')] + loc + id_
+
     for venue in venues:
         loc = [round(_, 6) for _ in reversed(venue['loc']['coordinates'])]
         id_ = [str(venue['_id'])]
-        res[venue['name']] = [venue['likes'], venue.get('where')] + loc + id_
+        insert_venue(venue)
     import ujson
     import codecs
     import gzip
@@ -78,11 +90,10 @@ if __name__ == '__main__':
     sys.exit()
     import os
     import pymongo
-    city = sys.argv[1]
     db = pymongo.MongoClient().foursquare.venue
     import boto
     from boto.s3.key import Key
-    S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', None),
+    S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', None)
     conn = boto.connect_s3()
     bucket = conn.get_bucket(S3_BUCKET_NAME)
     import cities
