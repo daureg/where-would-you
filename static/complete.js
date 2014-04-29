@@ -1,3 +1,5 @@
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+if (!String.prototype.trim) {String.prototype.trim = function () {return this.replace(/^\s+|\s+$/g, '');};}
 var NB_QUERIES = 0;
 var MAX_QUERIES = Math.floor(5000/(45*7));
 var TIMER = window.performance || Date;
@@ -121,6 +123,7 @@ function local_suggestion(best, query, threshold) {
         venue.lat = info[2];
         venue.lon = info[3];
         venue.id = info[4];
+	venue.name = venue.name.trim();
         delete venue.score;
         res.push(venue);
     }
