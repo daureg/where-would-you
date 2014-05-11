@@ -71,10 +71,20 @@ a {color: #1e90ff; /* Dodger Blue */ }
 #identity, #serious, #really {display: none;}
 .button_action,
 .button-action {
-	color: white;
-	border-radius: 3px;
-	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-	background: #ff851b; /* this is an orange */
+    color: white;
+    border-radius: 3px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background: #ff851b; /* this is an orange */
+    -moz-transition-property: background, color;
+    -webkit-transition-property: background, color;
+    -ms-transition-property: background, color;
+    -o-transition-property: background, color;
+    transition-property: background, color;
+    -moz-transition-duration:0.4s;
+    -webkit-transition-duration: 0.4s;
+    -ms-transition-duration:0.4s;
+    -o-transition-duration:0.4s;
+    transition-duration:0.4s;
 }
 .address {font-size: 0.75em; color: #888;}
 ul.venues {
@@ -86,21 +96,34 @@ ul.venues {
 #morehelp p:last-child {
 	font-size: 1.2em;
 }
+#morehelp table {
+    width: 100%;
+}
+#morehelp tr {
+    vertical-align: middle;
+}
+#morehelp td {
+    padding: 0.5em 0;
+}
+#morehelp td.example {
+    text-align: center;
+}
+
 html {height: 100%;}
 body {
 	background: #f9fcf9; /* Old browsers */
 	/* IE9 SVG, needs conditional override of 'filter' to 'none' */
-	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmOWZjZjkiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZjhmZmRjIiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L3JhZGlhbEdyYWRpZW50PgogIDxyZWN0IHg9Ii01MCIgeT0iLTUwIiB3aWR0aD0iMTAxIiBoZWlnaHQ9IjEwMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-	background: -moz-radial-gradient(center, ellipse cover,  #f9fcf9 0%, #f8ffdc 100%); /* FF3.6+ */
-	background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#f9fcf9), color-stop(100%,#f8ffdc)); /* Chrome,Safari4+ */
-	background: -webkit-radial-gradient(center, ellipse cover,  #f9fcf9 0%,#f8ffdc 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-radial-gradient(center, ellipse cover,  #f9fcf9 0%,#f8ffdc 100%); /* Opera 12+ */
-	background: -ms-radial-gradient(center, ellipse cover,  #f9fcf9 0%,#f8ffdc 100%); /* IE10+ */
-	background: radial-gradient(ellipse at center,  #f9fcf9 0%,#f8ffdc 100%); /* W3C */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f9fcf9', endColorstr='#f8ffdc',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMjAlIiBzdG9wLWNvbG9yPSIjZjlmY2Y5IiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmZjFkZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9yYWRpYWxHcmFkaWVudD4KICA8cmVjdCB4PSItNTAiIHk9Ii01MCIgd2lkdGg9IjEwMSIgaGVpZ2h0PSIxMDEiIGZpbGw9InVybCgjZ3JhZC11Y2dnLWdlbmVyYXRlZCkiIC8+Cjwvc3ZnPg==);
+	background: -moz-radial-gradient(center, ellipse cover, #f9fcf9 20%, #fff1dd 100%); /* FF3.6+ */
+	background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(20%,#f9fcf9), color-stop(100%,#fff1dd)); /* Chrome,Safari4+ */
+	background: -webkit-radial-gradient(center, ellipse cover, #f9fcf9 20%,#fff1dd 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-radial-gradient(center, ellipse cover, #f9fcf9 20%,#fff1dd 100%); /* Opera 12+ */
+	background: -ms-radial-gradient(center, ellipse cover, #f9fcf9 20%,#fff1dd 100%); /* IE10+ */
+	background: radial-gradient(ellipse at center, #f9fcf9 20%,#fff1dd 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f9fcf9', endColorstr='#fff1dd',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
 	color: #333;
 	font-family: 'Open Sans', sans-serif;
-	line-height: 1.45;
+	line-height: 1.5;
 }
 #morehelp img {
     vertical-align: middle;
@@ -113,7 +136,8 @@ body {
 	padding: .25em .75em;
 }
 #morehelp {
-    width: 42em !important;
+    width: 80% !important;
+    max-width: 1300px !important;
 }
 #morehelp, #help, #end {
 	margin: 1em auto;
