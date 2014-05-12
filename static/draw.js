@@ -108,6 +108,9 @@ L.drawLocal.draw.handlers.polyline.error = "Please, use only simple shape!";
 L.drawLocal.edit.toolbar.buttons.edit = "Modify areas.";
 L.drawLocal.edit.toolbar.buttons.editDisabled = "No area to modify yet.";
 L.drawLocal.edit.handlers.edit.tooltip.text = "Drag handles to modify area.";
+L.drawLocal.edit.toolbar.buttons.remove = "Delete areas.";
+L.drawLocal.edit.toolbar.buttons.removeDisabled = "No area to modify yet.";
+L.drawLocal.edit.handlers.remove.tooltip.text = "Click on a feature to remove it.";
 
 var drawControl = new L.Control.Draw({
     position: 'topleft',
@@ -133,7 +136,7 @@ var drawControl = new L.Control.Draw({
         edit: {
             selectedPathOptions: {color: '#111' }
         },
-        remove: false
+        remove: true
     }
 });
 
@@ -146,6 +149,17 @@ map.on('draw:edited', function (e) {
     e.layers.eachLayer(function(layer) { add_or_edit(layer, 'edit', nb_zones); });
     has_given_all_answers();
 });
+map.on('draw:deleted', function (e) {
+    remove_invalid_popup();
+    var nb_zones = Object.keys(e.layers._layers).length;
+    e.layers.eachLayer(function(layer) {
+        id_ = get_answer_id(layer._leaflet_id);
+        delete ANSWER[id_];
+        drawnItems.removeLayer(layer);
+    });
+    has_given_all_answers();
+});
+
 
 /* Find id in ANSWER from leaflet id */
 function get_answer_id(lid) {
