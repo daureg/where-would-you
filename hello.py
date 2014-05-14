@@ -320,7 +320,7 @@ def add_new_user():
 
 @app.route('/like', methods=['POST'])
 def like():
-    db = get_db().get_default_database()['answer']
+    db = get_db().get_default_database()['answers']
     like = {'uid': str(f.session['id_']), 'when': dt.utcnow(), 'like': True}
     try:
         db.insert(like, continue_on_error=True)
